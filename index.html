@@ -39,6 +39,8 @@
     html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
     body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.6; -webkit-tap-highlight-color: transparent; }
     body.no-scroll { overflow: hidden; }
+    main, footer { transition: opacity .2s ease; }
+    body.switching main, body.switching footer { opacity: .25; }
     img { display: block; max-width: 100%; }
     a { color: var(--accent); }
     a:hover { color: #4A3222; }
@@ -77,23 +79,28 @@
     .btn-line:hover { background: var(--ink); color: var(--bg); }
     .btn-wa { background: var(--wa); border-color: var(--wa); color: #fff; }
     .btn-wa:hover { background: var(--wa-dark); border-color: var(--wa-dark); color: #fff; box-shadow: 0 12px 24px -10px rgba(30,107,69,.6); }
-    .btn[disabled] { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
     .btn .arrow { transition: transform .25s var(--ease); }
     .btn:hover .arrow { transform: translateX(4px); }
-    /* shine sweep on dark buttons */
     .btn-dark::after, .btn-wa::after {
       content: ""; position: absolute; inset: 0; z-index: -1;
       background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.18) 50%, transparent 70%);
       transform: translateX(-120%); transition: transform .7s var(--ease);
     }
     .btn-dark:hover::after, .btn-wa:hover::after { transform: translateX(120%); }
-    /* ripple */
     .ripple { position: absolute; border-radius: 50%; transform: scale(0); background: currentColor; opacity: .25; pointer-events: none; animation: ripple .6s var(--ease) forwards; z-index: 0; }
     @keyframes ripple { to { transform: scale(2.6); opacity: 0; } }
 
     .icon-btn { width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--paper); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; position: relative; flex: none; transition: transform .2s var(--ease), background .2s, border-color .2s; }
     .icon-btn:hover { transform: translateY(-2px); border-color: var(--ink); }
     .icon-btn:active { transform: scale(.92); }
+
+    /* Language switch */
+    .lang { display: inline-flex; align-items: center; padding: 3px; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--paper); flex: none; }
+    .lang button { min-width: 40px; height: 36px; padding: 0 8px; border: 0; border-radius: 999px; background: transparent; font-size: 12px; font-weight: 600; letter-spacing: 1px; cursor: pointer; transition: background .25s var(--ease), color .25s, transform .2s var(--spring); }
+    .lang button:hover { background: rgba(42,36,32,.06); }
+    .lang button:active { transform: scale(.9); }
+    .lang button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+    .lang-mobile { display: none; }
 
     /* ============ Header ============ */
     header { position: sticky; top: 0; z-index: 50; background: rgba(245,240,230,.92); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
@@ -105,7 +112,7 @@
     .brand-name b { font-family: var(--serif); font-size: 26px; font-weight: 600; }
     .brand-name span { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
     .nav-right { display: flex; align-items: center; gap: 10px; }
-    .nav-links { display: flex; align-items: center; gap: 26px; margin-right: 8px; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; }
+    .nav-links { display: flex; align-items: center; gap: 24px; margin-right: 6px; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; }
     .nav-links a { color: var(--ink); text-decoration: none; padding: 10px 0; position: relative; }
     .nav-links a::after { content: ""; position: absolute; left: 0; right: 0; bottom: 4px; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: right; transition: transform .3s var(--ease); }
     .nav-links a:hover::after { transform: scaleX(1); transform-origin: left; }
@@ -114,14 +121,16 @@
     .badge.show { transform: scale(1); }
     .bump { animation: bump .45s var(--spring); }
     @keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
-    @media (max-width: 900px) {
+    @media (max-width: 1060px) {
       .menu-toggle { display: inline-flex; }
       .nav-links { position: absolute; left: 0; right: 0; top: 100%; margin: 0; flex-direction: column; align-items: stretch; gap: 0; background: var(--bg); border-bottom: 1px solid var(--line); padding: 4px var(--pad) 16px; transform-origin: top; transform: scaleY(.96); opacity: 0; pointer-events: none; transition: opacity .25s var(--ease), transform .25s var(--ease); }
       .nav-links.open { opacity: 1; transform: none; pointer-events: auto; }
       .nav-links a { padding: 14px 0; border-bottom: 1px solid var(--line); }
       .nav-links a::after { display: none; }
     }
-    @media (max-width: 400px) {
+    @media (max-width: 480px) {
+      .lang-desktop { display: none; }
+      .lang-mobile { display: inline-flex; align-self: flex-start; margin: 14px 0 2px; }
       .brand { gap: 10px; }
       .brand-name b { font-size: 22px; }
       .brand-name span { letter-spacing: 2px; font-size: 9px; }
@@ -167,25 +176,22 @@
     .bread-layout { display: grid; grid-template-columns: 1fr 2fr; gap: 24px; align-items: start; }
     .bread-photo img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 20px; }
     .bread-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
-    .bread-card { border-radius: 16px; padding: 16px 16px 14px; display: flex; flex-direction: column; gap: 8px; border: 1px dashed var(--line-strong); transition: transform .25s var(--ease), box-shadow .25s var(--ease); }
-    .bread-card.today { background: var(--paper); border: 1px solid var(--gold); }
-    .bread-card:hover { transform: translateY(-3px); box-shadow: 0 14px 30px -18px rgba(42,36,32,.35); }
+    .bread-card { border-radius: 16px; padding: 16px 16px 14px; display: flex; flex-direction: column; gap: 6px; background: var(--paper); border: 1px solid var(--line); transition: transform .25s var(--ease), box-shadow .25s var(--ease), border-color .25s; }
+    .bread-card:hover { transform: translateY(-3px); border-color: var(--line-strong); box-shadow: 0 14px 30px -18px rgba(42,36,32,.35); }
     .bread-card h3 { font-size: 22px; font-weight: 600; line-height: 1.15; }
-    .bread-card:not(.today) h3 { color: var(--body); }
-    .bread-meta { display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-wrap: wrap; }
-    .bread-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 2px; }
+    .bread-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 8px; margin-top: auto; padding-top: 4px; }
     .price { font-weight: 600; white-space: nowrap; }
     .days { font-size: 12px; color: var(--muted); }
-    .tag { font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; background: var(--ink); color: var(--bg); padding: 4px 9px; border-radius: 999px; }
-    .tag.soft { background: transparent; color: var(--muted); border: 1px solid var(--line-strong); }
     @media (max-width: 900px) {
       .bread-layout { grid-template-columns: 1fr; }
       .bread-photo { display: none; }
       .bread-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-      .bread-card { padding: 13px 12px 12px; gap: 6px; }
+      .bread-card { padding: 13px 12px 12px; }
       .bread-card h3 { font-size: 19px; }
       .days { font-size: 11px; }
-      .tag { font-size: 9px; padding: 3px 7px; }
+      .bread-card .add-btn { width: 36px; height: 36px; }
+      .bread-card .stepper button { width: 30px; height: 30px; }
+      .bread-card .stepper output { min-width: 18px; }
     }
 
     /* ============ Qty controls ============ */
@@ -325,12 +331,13 @@
     .choice-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .choice { position: relative; display: block; }
     .choice input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; width: 100%; height: 100%; }
-    .choice span { display: flex; flex-direction: column; gap: 2px; height: 100%; padding: 12px 14px; border: 1px solid var(--line-strong); border-radius: 14px; background: var(--paper); font-size: 14px; font-weight: 500; transition: border-color .2s, background .2s, color .2s, transform .2s var(--ease); }
-    .choice span small { font-weight: 400; font-size: 12px; color: var(--muted); transition: color .2s; }
+    .choice > span { display: flex; flex-direction: column; gap: 2px; height: 100%; padding: 12px 14px; border: 1px solid var(--line-strong); border-radius: 14px; background: var(--paper); font-size: 14px; font-weight: 500; transition: border-color .2s, background .2s, color .2s, transform .2s var(--ease); }
+    .choice > span small { font-weight: 400; font-size: 12px; color: var(--muted); transition: color .2s; }
     .choice input:checked + span { border-color: var(--ink); background: var(--ink); color: var(--bg); }
     .choice input:checked + span small { color: #D9CFBE; }
     .choice input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .choice:active span { transform: scale(.97); }
+    .choice:active > span { transform: scale(.97); }
+    .pickup-info { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); font-size: 14px; color: var(--body); }
     .input { width: 100%; min-height: 46px; padding: 11px 14px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--paper); font: inherit; font-size: 16px; color: var(--ink); transition: border-color .2s, box-shadow .2s; }
     .input::placeholder { color: #8C8178; }
     .input:focus { outline: none; border-color: var(--ink); box-shadow: 0 0 0 3px rgba(42,36,32,.08); }
@@ -362,23 +369,31 @@
 
 <header>
   <div class="wrap nav">
-    <a class="brand" href="#top" aria-label="Paris-Brest — на главную">
-      <img src="images/logo.jpg" alt="Логотип Paris-Brest">
+    <a class="brand" href="#top" data-i18n-aria="brandAria" aria-label="Paris-Brest — на главную">
+      <img src="images/logo.jpg" alt="Paris-Brest logo">
       <span class="brand-name"><b>Paris-Brest</b><span>Patisserie · Boulangerie</span></span>
     </a>
     <div class="nav-right">
-      <nav class="nav-links" id="nav-links" aria-label="Основное меню">
-        <a href="#bread">Хлеб</a>
-        <a href="#menu">Меню</a>
-        <a href="#gallery">Фото</a>
-        <a href="#reviews">Отзывы</a>
-        <a href="#branches">Адреса</a>
+      <nav class="nav-links" id="nav-links" data-i18n-aria="navAria" aria-label="Основное меню">
+        <a href="#bread" data-i18n="navBread">Хлеб</a>
+        <a href="#menu" data-i18n="navMenu">Меню</a>
+        <a href="#gallery" data-i18n="navPhoto">Фото</a>
+        <a href="#reviews" data-i18n="navReviews">Отзывы</a>
+        <a href="#branches" data-i18n="navAddresses">Адреса</a>
+        <div class="lang lang-mobile" role="group" aria-label="Язык / Тіл">
+          <button type="button" data-lang="ru" aria-pressed="true">RU</button>
+          <button type="button" data-lang="kz" aria-pressed="false">KZ</button>
+        </div>
       </nav>
-      <button class="icon-btn" id="cart-btn" aria-label="Открыть корзину">
+      <div class="lang lang-desktop" role="group" aria-label="Язык / Тіл">
+        <button type="button" data-lang="ru" aria-pressed="true">RU</button>
+        <button type="button" data-lang="kz" aria-pressed="false">KZ</button>
+      </div>
+      <button class="icon-btn" id="cart-btn" data-i18n-aria="openCart" aria-label="Открыть корзину">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.2 11.1a2 2 0 0 1-2 1.9H8.2a2 2 0 0 1-2-1.9L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
         <span class="badge" id="cart-badge">0</span>
       </button>
-      <button class="icon-btn menu-toggle" aria-label="Открыть меню" aria-expanded="false" aria-controls="nav-links">
+      <button class="icon-btn menu-toggle" data-i18n-aria="openMenu" aria-label="Открыть меню" aria-expanded="false" aria-controls="nav-links">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
       </button>
     </div>
@@ -391,43 +406,43 @@
   <section>
     <div class="wrap hero">
       <div class="hero-text">
-        <p class="eyebrow">Французская пекарня в Астане · с 2019 года</p>
-        <h1>Круассаны, которые тают во рту</h1>
-        <p>Каждое утро печём хлеб на закваске, слоёную выпечку и то самое пирожное Paris-Brest. Соберите заказ на сайте и отправьте его нам в WhatsApp в один клик.</p>
+        <p class="eyebrow" data-i18n="heroEyebrow">Французская пекарня в Астане · с 2019 года</p>
+        <h1 data-i18n="heroTitle">Круассаны, которые тают во рту</h1>
+        <p data-i18n="heroText">Каждое утро печём хлеб на закваске, слоёную выпечку и то самое пирожное Paris-Brest. Соберите заказ на сайте и отправьте его нам в WhatsApp в один клик.</p>
         <div class="hero-actions">
-          <a class="btn btn-dark" href="#menu">Заказать онлайн <span class="arrow" aria-hidden="true">→</span></a>
-          <a class="btn btn-line" href="#branches">Наши адреса</a>
+          <a class="btn btn-dark" href="#menu"><span data-i18n="heroOrder">Заказать онлайн</span> <span class="arrow" aria-hidden="true">→</span></a>
+          <a class="btn btn-line" href="#branches" data-i18n="heroAddresses">Наши адреса</a>
         </div>
       </div>
       <div class="hero-photo">
-        <img src="images/hero.jpg" alt="Плетёная булочка с корицей на голубой тарелке">
-        <div class="hero-badge"><b>4,9 ★</b><span>рейтинг в Google</span></div>
+        <img src="images/hero.jpg" data-i18n-alt="altHero" alt="Плетёная булочка с корицей">
+        <div class="hero-badge"><b>4,9 ★</b><span data-i18n="googleRating">рейтинг в Google</span></div>
       </div>
     </div>
   </section>
 
   <!-- Info strip -->
-  <section class="strip" aria-label="Коротко">
+  <section class="strip">
     <div class="wrap strip-grid">
-      <div><span class="eyebrow">Улы Дала 56/1</span><strong>9:00–20:00</strong></div>
-      <div><span class="eyebrow">Сыганак 48А</span><strong>9:00–19:00</strong></div>
-      <div><span class="eyebrow">Завтраки</span><strong>Сэндвичи до 16:00</strong></div>
-      <div><span class="eyebrow">Заказ</span><strong>Через WhatsApp</strong></div>
+      <div><span class="eyebrow" data-i18n="ulydala">Улы Дала 56/1</span><strong>9:00–20:00</strong></div>
+      <div><span class="eyebrow" data-i18n="syganak">Сыганак 48А</span><strong>9:00–19:00</strong></div>
+      <div><span class="eyebrow" data-i18n="stripBreakfast">Завтраки</span><strong data-i18n="stripSandwich">Сэндвичи до 16:00</strong></div>
+      <div><span class="eyebrow" data-i18n="stripOrder">Заказ</span><strong data-i18n="stripWa">Через WhatsApp</strong></div>
     </div>
   </section>
 
-  <!-- Bread today -->
+  <!-- Bread -->
   <section class="section" id="bread">
     <div class="wrap">
       <div class="section-head reveal">
         <div class="titles">
           <span class="script">bread</span>
-          <h2>Сегодня в печи</h2>
+          <h2 data-i18n="breadTitle">Хлеб на закваске</h2>
         </div>
-        <p id="bread-intro">Каждый хлеб на закваске печём в свой день недели.</p>
+        <p data-i18n="breadText">Каждый сорт печём в свой день недели, график указан на карточке.</p>
       </div>
       <div class="bread-layout">
-        <div class="bread-photo reveal"><img src="images/bread.jpg" alt="Хлеб «Три семечки» на противне"></div>
+        <div class="bread-photo reveal"><img src="images/bread.jpg" data-i18n-alt="altBread" alt="Хлеб «Три семечки»"></div>
         <div class="bread-grid" id="bread-grid"></div>
       </div>
     </div>
@@ -439,13 +454,13 @@
       <div class="section-head reveal">
         <div class="titles">
           <span class="script">menu</span>
-          <h2>Меню</h2>
+          <h2 data-i18n="menuTitle">Меню</h2>
         </div>
-        <p>Нажмите «+», чтобы добавить в корзину. Заказ уйдёт в WhatsApp выбранной пекарни.</p>
+        <p data-i18n="menuText">Нажмите «+», чтобы добавить в корзину. Заказ уйдёт в WhatsApp выбранной пекарни.</p>
       </div>
-      <div class="tabs" role="tablist" aria-label="Разделы меню" id="tabs"></div>
+      <div class="tabs" role="tablist" id="tabs"></div>
       <div class="menu-panel" role="tabpanel" id="menu-panel"></div>
-      <p class="fine">Цены в тенге. Актуальное меню уточняйте в пекарне или в Instagram.</p>
+      <p class="fine" data-i18n="menuFine">Цены в тенге. Актуальное меню уточняйте в пекарне или в Instagram.</p>
     </div>
   </section>
 
@@ -455,15 +470,15 @@
       <div class="section-head reveal">
         <div class="titles">
           <span class="script">fait maison</span>
-          <h2>Из нашей пекарни</h2>
+          <h2 data-i18n="galleryTitle">Из нашей пекарни</h2>
         </div>
-        <p>Всё готовим сами, каждый день. Новинки в <a href="https://instagram.com/parisbrest_kz" target="_blank" rel="noopener">Instagram @parisbrest_kz</a>.</p>
+        <p><span data-i18n="galleryText">Всё готовим сами, каждый день. Новинки в Instagram</span> <a href="https://instagram.com/parisbrest_kz" target="_blank" rel="noopener">@parisbrest_kz</a></p>
       </div>
       <div class="gallery">
-        <figure class="g-tall reveal"><img src="images/pastries.jpg" alt="Паштел-де-ната и канеле" loading="lazy"><figcaption>Паштел-де-ната</figcaption></figure>
-        <figure class="g-wide reveal"><img src="images/sandwich.jpg" alt="Сэндвич на фокаччо" loading="lazy"><figcaption>Сэндвичи</figcaption></figure>
-        <figure class="g-tall reveal"><img src="images/cake.jpg" alt="Бенто-торт Paris-Brest" loading="lazy"><figcaption>Бенто-торты</figcaption></figure>
-        <figure class="g-wide reveal"><img src="images/hero.jpg" alt="Плетёная булочка" loading="lazy" style="object-position: 50% 52%"><figcaption>Выпечка</figcaption></figure>
+        <figure class="g-tall reveal"><img src="images/pastries.jpg" alt="" loading="lazy"><figcaption data-i18n="capNata">Паштел-де-ната</figcaption></figure>
+        <figure class="g-wide reveal"><img src="images/sandwich.jpg" alt="" loading="lazy"><figcaption data-i18n="capSandwich">Сэндвичи</figcaption></figure>
+        <figure class="g-tall reveal"><img src="images/cake.jpg" alt="" loading="lazy"><figcaption data-i18n="capCake">Бенто-торты</figcaption></figure>
+        <figure class="g-wide reveal"><img src="images/hero.jpg" alt="" loading="lazy" style="object-position: 50% 52%"><figcaption data-i18n="capPastry">Выпечка</figcaption></figure>
       </div>
     </div>
   </section>
@@ -472,8 +487,8 @@
   <section class="section reviews" id="reviews">
     <div class="wrap">
       <div class="section-head reveal">
-        <h2>Что говорят гости</h2>
-        <p>4,9 ★ · отзывы Google</p>
+        <h2 data-i18n="reviewsTitle">Что говорят гости</h2>
+        <p data-i18n="reviewsText">4,9 ★ · отзывы Google</p>
       </div>
       <div class="review-grid">
         <figure class="review">
@@ -482,7 +497,7 @@
         </figure>
         <figure class="review">
           <blockquote>“I felt like I was in a fairy tale. The croissants were melting in my mouth, and the drinks were absolute perfection.”</blockquote>
-          <figcaption>Гость · Google</figcaption>
+          <figcaption data-i18n="guest">Гость · Google</figcaption>
         </figure>
         <figure class="review">
           <blockquote>“The syrniki is amazingly delicious.”</blockquote>
@@ -496,18 +511,18 @@
   <section class="section">
     <div class="wrap about">
       <div class="about-photos reveal">
-        <img src="images/baker.jpg" alt="Пекарь Paris-Brest со свежими пирожными" loading="lazy">
-        <img src="images/barista.jpg" alt="Бариста готовит кофе" loading="lazy">
+        <img src="images/baker.jpg" data-i18n-alt="altBaker" alt="Пекарь Paris-Brest" loading="lazy">
+        <img src="images/barista.jpg" data-i18n-alt="altBarista" alt="Бариста готовит кофе" loading="lazy">
       </div>
       <div class="about-text reveal">
         <span class="script">notre histoire</span>
-        <h2>Маленькая пекарня с большой мечтой</h2>
-        <p>Paris-Brest открыли в ноябре 2019 года Татьяна и Мария. Они познакомились на кулинарном мастер-классе и обе мечтали о своём деле. Так в Астане появилась французская пекарня-кондитерская, куда люди приходят каждое утро за тёплым багетом.</p>
-        <p>Своё имя пекарня взяла у классического французского пирожного из заварного теста с пралине.</p>
+        <h2 data-i18n="aboutTitle">Маленькая пекарня с большой мечтой</h2>
+        <p data-i18n="aboutP1">Paris-Brest открыли в ноябре 2019 года Татьяна и Мария. Они познакомились на кулинарном мастер-классе и обе мечтали о своём деле. Так в Астане появилась французская пекарня-кондитерская, куда люди приходят каждое утро за тёплым багетом.</p>
+        <p data-i18n="aboutP2">Своё имя пекарня взяла у классического французского пирожного из заварного теста с пралине.</p>
         <div class="pills">
-          <span class="pill">Пекарня-кондитерская</span>
-          <span class="pill">Муссовые десерты</span>
-          <span class="pill">Хлеб на закваске</span>
+          <span class="pill" data-i18n="pill1">Пекарня-кондитерская</span>
+          <span class="pill" data-i18n="pill2">Муссовые десерты</span>
+          <span class="pill" data-i18n="pill3">Хлеб на закваске</span>
         </div>
       </div>
     </div>
@@ -519,42 +534,42 @@
       <div class="section-head reveal">
         <div class="titles">
           <span class="script">bienvenue</span>
-          <h2>Два адреса в Астане</h2>
+          <h2 data-i18n="branchesTitle">Два адреса в Астане</h2>
         </div>
-        <p>Закажите на сайте или напишите напрямую в WhatsApp пекарне, которая вам ближе.</p>
+        <p data-i18n="branchesText">Закажите на сайте или напишите напрямую в WhatsApp пекарне, которая вам ближе.</p>
       </div>
       <div class="branches">
         <article class="branch reveal">
-          <h3>Улы Дала 56/1</h3>
+          <h3 data-i18n="ulydala">Улы Дала 56/1</h3>
           <dl>
-            <div><dt>Часы работы</dt><dd>Ежедневно 9:00–20:00</dd></div>
-            <div><dt>Телефон</dt><dd><a href="tel:+77011099000">8 701 109 9000</a></dd></div>
+            <div><dt data-i18n="hours">Часы работы</dt><dd data-i18n="hoursUly">Ежедневно 9:00–20:00</dd></div>
+            <div><dt data-i18n="phone">Телефон</dt><dd><a href="tel:+77011099000">8 701 109 9000</a></dd></div>
           </dl>
           <div class="actions">
             <a class="btn btn-wa" href="https://wa.me/77011099000" target="_blank" rel="noopener">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.2A8.5 8.5 0 1 1 20 11.5z"/></svg>
               WhatsApp
             </a>
-            <a class="btn btn-line" href="https://www.google.com/maps/search/?api=1&query=Paris-Brest%2C%20%D0%A3%D0%BB%D1%8B%20%D0%94%D0%B0%D0%BB%D0%B0%2056%2F1%2C%20%D0%90%D1%81%D1%82%D0%B0%D0%BD%D0%B0" target="_blank" rel="noopener">Маршрут</a>
+            <a class="btn btn-line" href="https://www.google.com/maps/search/?api=1&query=Paris-Brest%2C%20%D0%A3%D0%BB%D1%8B%20%D0%94%D0%B0%D0%BB%D0%B0%2056%2F1%2C%20%D0%90%D1%81%D1%82%D0%B0%D0%BD%D0%B0" target="_blank" rel="noopener" data-i18n="route">Маршрут</a>
           </div>
         </article>
         <article class="branch reveal">
-          <h3>Сыганак 48А</h3>
+          <h3 data-i18n="syganak">Сыганак 48А</h3>
           <dl>
-            <div><dt>Часы работы</dt><dd>Ежедневно 9:00–19:00</dd></div>
-            <div><dt>Телефон</dt><dd><a href="tel:+77711099003">8 771 109 9003</a></dd></div>
+            <div><dt data-i18n="hours">Часы работы</dt><dd data-i18n="hoursSyg">Ежедневно 9:00–19:00</dd></div>
+            <div><dt data-i18n="phone">Телефон</dt><dd><a href="tel:+77711099003">8 771 109 9003</a></dd></div>
           </dl>
           <div class="actions">
             <a class="btn btn-wa" href="https://wa.me/message/6XXKNQG5F6UWB1" target="_blank" rel="noopener">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.2A8.5 8.5 0 1 1 20 11.5z"/></svg>
               WhatsApp
             </a>
-            <a class="btn btn-line" href="https://www.google.com/maps/search/?api=1&query=Paris-Brest%2C%20%D0%A1%D1%8B%D0%B3%D0%B0%D0%BD%D0%B0%D0%BA%2048%D0%90%2C%20%D0%90%D1%81%D1%82%D0%B0%D0%BD%D0%B0" target="_blank" rel="noopener">Маршрут</a>
+            <a class="btn btn-line" href="https://www.google.com/maps/search/?api=1&query=Paris-Brest%2C%20%D0%A1%D1%8B%D0%B3%D0%B0%D0%BD%D0%B0%D0%BA%2048%D0%90%2C%20%D0%90%D1%81%D1%82%D0%B0%D0%BD%D0%B0" target="_blank" rel="noopener" data-i18n="route">Маршрут</a>
           </div>
         </article>
       </div>
       <div class="insta reveal">
-        <p>Новинки, сезонные десерты и меню дня в нашем Instagram.</p>
+        <p data-i18n="instaText">Новинки, сезонные десерты и меню дня в нашем Instagram.</p>
         <a class="btn btn-dark" href="https://instagram.com/parisbrest_kz" target="_blank" rel="noopener">@parisbrest_kz</a>
       </div>
     </div>
@@ -565,13 +580,13 @@
 <footer>
   <div class="wrap">
     <b>Paris-Brest</b>
-    <span>Patisserie · Boulangerie · Астана · © <span id="year"></span></span>
+    <span><span data-i18n="footer">Patisserie · Boulangerie · Астана</span> · © <span id="year"></span></span>
   </div>
 </footer>
 
 <!-- Floating cart button -->
-<button class="cart-fab" id="cart-fab" aria-label="Открыть корзину">
-  <span><span class="label">Корзина · </span><span class="sum" id="fab-sum">0 ₸</span></span>
+<button class="cart-fab" id="cart-fab" data-i18n-aria="openCart" aria-label="Открыть корзину">
+  <span><span class="label" data-i18n="cart">Корзина</span><span class="label"> · </span><span class="sum" id="fab-sum">0 ₸</span></span>
   <span class="count">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.2 11.1a2 2 0 0 1-2 1.9H8.2a2 2 0 0 1-2-1.9L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
     <span id="fab-count">0</span>
@@ -582,8 +597,8 @@
 <div class="overlay" id="overlay"></div>
 <aside class="cart" id="cart" role="dialog" aria-modal="true" aria-labelledby="cart-title" aria-hidden="true">
   <div class="cart-head">
-    <h2 id="cart-title">Корзина</h2>
-    <button class="icon-btn" id="cart-close" aria-label="Закрыть корзину">
+    <h2 id="cart-title" data-i18n="cart">Корзина</h2>
+    <button class="icon-btn" id="cart-close" data-i18n-aria="closeCart" aria-label="Закрыть корзину">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
     </button>
   </div>
@@ -591,50 +606,58 @@
   <div class="cart-body">
     <div class="empty" id="cart-empty">
       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.2 11.1a2 2 0 0 1-2 1.9H8.2a2 2 0 0 1-2-1.9L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
-      <p>Корзина пока пустая.<br>Добавьте что-нибудь вкусное из меню.</p>
-      <a class="btn btn-dark" href="#menu" data-close>Открыть меню</a>
+      <p data-i18n-html="cartEmpty">Корзина пока пустая.<br>Добавьте что-нибудь вкусное из меню.</p>
+      <a class="btn btn-dark" href="#menu" data-close data-i18n="openMenuBtn">Открыть меню</a>
     </div>
 
     <div id="cart-filled" hidden>
       <ul class="cart-items" id="cart-items"></ul>
-      <p class="note" id="sandwich-note" hidden>Сэндвичи и сырники готовим до 16:00.</p>
+      <p class="note" id="sandwich-note" data-i18n="sandwichNote" hidden>Сэндвичи и сырники готовим до 16:00.</p>
 
       <div class="field-group">
-        <span class="field-label">Пекарня</span>
+        <span class="field-label" data-i18n="bakery">Пекарня</span>
         <div class="choice-row">
-          <label class="choice"><input type="radio" name="branch" value="ulydala" checked><span>Улы Дала 56/1<small>9:00–20:00</small></span></label>
-          <label class="choice"><input type="radio" name="branch" value="syganak"><span>Сыганак 48А<small>9:00–19:00</small></span></label>
+          <label class="choice"><input type="radio" name="branch" value="ulydala" checked><span><span data-i18n="ulydala">Улы Дала 56/1</span><small>9:00–20:00</small></span></label>
+          <label class="choice"><input type="radio" name="branch" value="syganak"><span><span data-i18n="syganak">Сыганак 48А</span><small>9:00–19:00</small></span></label>
         </div>
       </div>
 
       <div class="field-group">
-        <span class="field-label">Способ получения</span>
-        <div class="choice-row">
-          <label class="choice"><input type="radio" name="method" value="pickup" checked><span>Самовывоз<small>заберу сам(а)</small></span></label>
-          <label class="choice"><input type="radio" name="method" value="delivery"><span>Доставка<small>цену уточнит менеджер</small></span></label>
+        <span class="field-label" data-i18n="getting">Получение</span>
+        <!-- Без доставки: только самовывоз -->
+        <div class="pickup-info" id="pickup-info">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-6 9 6v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+          <span data-i18n="pickupInfo">Самовывоз из выбранной пекарни</span>
         </div>
-        <div id="address-wrap" hidden>
-          <input class="input" id="address" type="text" placeholder="Адрес доставки" autocomplete="street-address" aria-label="Адрес доставки">
-          <p class="err-text" id="address-err" hidden>Укажите адрес доставки</p>
+        <!-- С доставкой (включается флагом ENABLE_DELIVERY) -->
+        <div id="method-wrap" hidden>
+          <div class="choice-row">
+            <label class="choice"><input type="radio" name="method" value="pickup" checked><span><span data-i18n="pickup">Самовывоз</span><small data-i18n="pickupSub">заберу сам(а)</small></span></label>
+            <label class="choice"><input type="radio" name="method" value="delivery"><span><span data-i18n="delivery">Доставка</span><small data-i18n="deliverySub">цену уточнит менеджер</small></span></label>
+          </div>
+          <div id="address-wrap" hidden style="margin-top: 10px;">
+            <input class="input" id="address" type="text" data-i18n-ph="addressPh" placeholder="Адрес доставки" autocomplete="street-address" data-i18n-aria="addressPh" aria-label="Адрес доставки">
+            <p class="err-text" id="address-err" data-i18n="addressErr" hidden>Укажите адрес доставки</p>
+          </div>
         </div>
       </div>
 
       <div class="field-group">
-        <span class="field-label">Детали (необязательно)</span>
-        <input class="input" id="name" type="text" placeholder="Ваше имя" autocomplete="given-name" aria-label="Ваше имя">
-        <input class="input" id="time" type="text" placeholder="Время, например «сегодня к 18:00»" aria-label="Время получения">
-        <textarea class="input" id="comment" placeholder="Комментарий к заказу" aria-label="Комментарий к заказу"></textarea>
+        <span class="field-label" data-i18n="details">Детали (необязательно)</span>
+        <input class="input" id="name" type="text" data-i18n-ph="namePh" placeholder="Ваше имя" autocomplete="given-name" data-i18n-aria="namePh" aria-label="Ваше имя">
+        <input class="input" id="time" type="text" data-i18n-ph="timePh" placeholder="Время, например «сегодня к 18:00»" data-i18n-aria="timeAria" aria-label="Время получения">
+        <textarea class="input" id="comment" data-i18n-ph="commentPh" placeholder="Комментарий к заказу" data-i18n-aria="commentPh" aria-label="Комментарий к заказу"></textarea>
       </div>
     </div>
   </div>
 
   <div class="cart-foot" id="cart-foot" hidden>
-    <div class="cart-total"><span>Итого</span><b id="cart-total">0 ₸</b></div>
+    <div class="cart-total"><span data-i18n="total">Итого</span><b id="cart-total">0 ₸</b></div>
     <button class="btn btn-wa" id="checkout">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.2A8.5 8.5 0 1 1 20 11.5z"/></svg>
-      Заказать в WhatsApp
+      <span data-i18n="checkout">Заказать в WhatsApp</span>
     </button>
-    <button class="text-btn" id="clear-cart">Очистить корзину</button>
+    <button class="text-btn" id="clear-cart" data-i18n="clearCart">Очистить корзину</button>
   </div>
 </aside>
 
@@ -642,85 +665,175 @@
 
 <script>
   /* =========================================================
-     МЕНЮ. Чтобы изменить цену или добавить позицию,
-     правьте только этот блок. id должен быть уникальным.
+     НАСТРОЙКИ
      ========================================================= */
-  const MENU = [
-    { id: 'pastry', label: 'Выпечка', items: [
-      { id: 'croissant',        name: 'Классический круассан', price: 1300 },
-      { id: 'swiss',            name: 'Швейцарская слойка',    price: 1500 },
-      { id: 'croissant-straw',  name: 'Клубничный круассан',   price: 1700 },
-      { id: 'croissant-almond', name: 'Миндальный круассан',   price: 1800 },
-      { id: 'snail',            name: 'Улитка',                price: 1400, sub: 'с изюмом и цукатами' },
-      { id: 'chausson',         name: 'Шоссон',                price: 1700, sub: 'с яблоком' },
-      { id: 'swedish-bun',      name: 'Шведская булочка',      price: 1300 },
-      { id: 'poppy-bun',        name: 'Маковая булочка',       price: 1300 }
-    ]},
-    { id: 'sandwich', label: 'Сэндвичи и сырники', note: 'Подаём до 16:00', items: [
-      { id: 'bag-salmon',  name: 'Багет с лососем',       price: 3700, sandwich: true },
-      { id: 'bag-mozz',    name: 'Багет с моцареллой',    price: 3700, sandwich: true },
-      { id: 'bag-chicken', name: 'Багет с курицей',       price: 3200, sandwich: true },
-      { id: 'cr-salmon',   name: 'Круассан с лососем',    price: 3700, sandwich: true },
-      { id: 'cr-mozz',     name: 'Круассан с моцареллой', price: 3700, sandwich: true },
-      { id: 'cr-chicken',  name: 'Круассан с курицей',    price: 3200, sandwich: true },
-      { id: 'syrniki',     name: 'Сырники',               price: 3500, sandwich: true }
-    ]},
-    { id: 'coffee', label: 'Кофе', items: [
-      { id: 'espresso',   name: 'Эспрессо',            price: 900 },
-      { id: 'americano',  name: 'Американо',           price: 1200, sub: '0,35 л' },
-      { id: 'cappu-l',    name: 'Капучино большой',    price: 1400, sub: '0,35 л' },
-      { id: 'cappu-s',    name: 'Капучино маленький',  price: 1200, sub: '0,2 л' },
-      { id: 'latte',      name: 'Латте',               price: 1400, sub: '0,35 л' },
-      { id: 'flatwhite',  name: 'Флэт уайт',           price: 1300, sub: '0,2 л' },
-      { id: 'plant-milk', name: 'Растительное молоко', price: 400,  sub: 'добавка к кофе' }
-    ]},
-    { id: 'tea', label: 'Авторские чаи', note: 'Все чаи 0,35 л', items: [
-      { id: 'tea-sea',     name: 'Облепиха и малина',  price: 2200 },
-      { id: 'tea-cran',    name: 'Клюква и апельсин',  price: 2200 },
-      { id: 'tea-currant', name: 'Смородина и чабрец', price: 2200 },
-      { id: 'tea-mango',   name: 'Малина и манго',     price: 2200 },
-      { id: 'tea-cherry',  name: 'Вишня и эвкалипт',   price: 2200 }
-    ]},
-    { id: 'hot', label: 'Горячие напитки', items: [
-      { id: 'gluhwein',     name: 'Глинтвейн безалкогольный',    price: 2200, sub: '0,35 л' },
-      { id: 'hot-choc',     name: 'Горячий шоколад',             price: 1500, sub: '0,35 л' },
-      { id: 'matcha',       name: 'Матча латте',                 price: 2000, sub: '0,35 л' },
-      { id: 'matcha-plant', name: 'Матча латте на растительном', price: 2400, sub: '0,35 л' },
-      { id: 'tea-black',    name: 'Чёрный чай',                  price: 1500, sub: 'чайник 0,8 л' },
-      { id: 'tea-green',    name: 'Зелёный чай сенча',           price: 1500, sub: 'чайник 0,8 л' },
-      { id: 'tea-herbal',   name: 'Травяной чай с ромашкой',     price: 1500, sub: 'чайник 0,8 л' },
-      { id: 'tea-hibiscus', name: 'Фруктовый чай каркаде',       price: 1500, sub: 'чайник 0,8 л' }
-    ]}
-  ];
-
-  // Хлеб. Дни недели: 0 = воскресенье … 6 = суббота
-  const ALL = [0,1,2,3,4,5,6];
-  const BREADS = [
-    { id: 'baguette',  name: 'Багет',                  price: 800,  days: ALL,       label: 'Каждый день' },
-    { id: 'tartine-w', name: 'Тартин белый',           price: 1200, days: ALL,       label: 'Каждый день' },
-    { id: 'seeds',     name: 'Хлеб 3 семечки',         price: 1000, days: ALL,       label: 'Каждый день' },
-    { id: 'tartine-r', name: 'Тартин ржаной',          price: 1200, days: [2,4,6],   label: 'Вт · Чт · Сб' },
-    { id: 'borodino',  name: 'Бородинский хлеб',       price: 1200, days: [2,4,6,0], label: 'Вт · Чт · Сб · Вс' },
-    { id: 'danish',    name: 'Датский хлеб',           price: 1500, days: [1,3,5],   label: 'Пн · Ср · Пт' },
-    { id: 'hokkaido',  name: 'Тостовый хлеб Хоккайдо', price: 1400, days: [2,4,6],   label: 'Вт · Чт · Сб' }
-  ];
+  // Доставка: false = только самовывоз. Поставьте true, если у пекарни есть доставка.
+  const ENABLE_DELIVERY = false;
 
   // WhatsApp-номера филиалов (только цифры, с кодом страны 7)
   const BRANCHES = {
-    ulydala: { kz: 'Ұлы Дала 56/1', phone: '77011099000' },
-    syganak: { kz: 'Сығанақ 48А',  phone: '77711099003' }
+    ulydala: { ru: 'Улы Дала 56/1', kz: 'Ұлы Дала 56/1', phone: '77011099000' },
+    syganak: { ru: 'Сыганак 48А',  kz: 'Сығанақ 48А',  phone: '77711099003' }
+  };
+
+  /* =========================================================
+     МЕНЮ: название на двух языках. id должен быть уникальным.
+     ========================================================= */
+  const L = (ru, kz) => ({ ru, kz });
+  const MENU = [
+    { id: 'pastry', label: L('Выпечка', 'Тоқаштар'), items: [
+      { id: 'croissant',        name: L('Классический круассан', 'Классикалық круассан'), price: 1300 },
+      { id: 'swiss',            name: L('Швейцарская слойка', 'Швейцар қатпарлы тоқашы'), price: 1500 },
+      { id: 'croissant-straw',  name: L('Клубничный круассан', 'Құлпынайлы круассан'), price: 1700 },
+      { id: 'croissant-almond', name: L('Миндальный круассан', 'Бадамды круассан'), price: 1800 },
+      { id: 'snail',            name: L('Улитка', 'Улитка тоқашы'), sub: L('с изюмом и цукатами', 'мейіз бен цукатпен'), price: 1400 },
+      { id: 'chausson',         name: L('Шоссон', 'Шоссон'), sub: L('с яблоком', 'алмамен'), price: 1700 },
+      { id: 'swedish-bun',      name: L('Шведская булочка', 'Швед тоқашы'), price: 1300 },
+      { id: 'poppy-bun',        name: L('Маковая булочка', 'Көкнәр тоқашы'), price: 1300 }
+    ]},
+    { id: 'sandwich', label: L('Сэндвичи и сырники', 'Сэндвичтер мен сырниктер'), note: L('Подаём до 16:00', '16:00-ге дейін'), items: [
+      { id: 'bag-salmon',  name: L('Багет с лососем', 'Албырт балықты багет'), price: 3700, sandwich: true },
+      { id: 'bag-mozz',    name: L('Багет с моцареллой', 'Моцарелла қосылған багет'), price: 3700, sandwich: true },
+      { id: 'bag-chicken', name: L('Багет с курицей', 'Тауық етімен багет'), price: 3200, sandwich: true },
+      { id: 'cr-salmon',   name: L('Круассан с лососем', 'Албырт балықты круассан'), price: 3700, sandwich: true },
+      { id: 'cr-mozz',     name: L('Круассан с моцареллой', 'Моцарелла қосылған круассан'), price: 3700, sandwich: true },
+      { id: 'cr-chicken',  name: L('Круассан с курицей', 'Тауық етімен круассан'), price: 3200, sandwich: true },
+      { id: 'syrniki',     name: L('Сырники', 'Сырниктер'), price: 3500, sandwich: true }
+    ]},
+    { id: 'coffee', label: L('Кофе', 'Кофе'), items: [
+      { id: 'espresso',   name: L('Эспрессо', 'Эспрессо'), price: 900 },
+      { id: 'americano',  name: L('Американо', 'Американо'), sub: L('0,35 л', '0,35 л'), price: 1200 },
+      { id: 'cappu-l',    name: L('Капучино большой', 'Үлкен капучино'), sub: L('0,35 л', '0,35 л'), price: 1400 },
+      { id: 'cappu-s',    name: L('Капучино маленький', 'Кіші капучино'), sub: L('0,2 л', '0,2 л'), price: 1200 },
+      { id: 'latte',      name: L('Латте', 'Латте'), sub: L('0,35 л', '0,35 л'), price: 1400 },
+      { id: 'flatwhite',  name: L('Флэт уайт', 'Флэт уайт'), sub: L('0,2 л', '0,2 л'), price: 1300 },
+      { id: 'plant-milk', name: L('Растительное молоко', 'Өсімдік сүті'), sub: L('добавка к кофе', 'кофеге қосымша'), price: 400 }
+    ]},
+    { id: 'tea', label: L('Авторские чаи', 'Авторлық шайлар'), note: L('Все чаи 0,35 л', 'Барлық шайлар 0,35 л'), items: [
+      { id: 'tea-sea',     name: L('Облепиха и малина', 'Шырғанақ пен таңқурай'), price: 2200 },
+      { id: 'tea-cran',    name: L('Клюква и апельсин', 'Мүкжидек пен апельсин'), price: 2200 },
+      { id: 'tea-currant', name: L('Смородина и чабрец', 'Қарақат пен чабрец'), price: 2200 },
+      { id: 'tea-mango',   name: L('Малина и манго', 'Таңқурай мен манго'), price: 2200 },
+      { id: 'tea-cherry',  name: L('Вишня и эвкалипт', 'Шие мен эвкалипт'), price: 2200 }
+    ]},
+    { id: 'hot', label: L('Горячие напитки', 'Ыстық сусындар'), items: [
+      { id: 'gluhwein',     name: L('Глинтвейн безалкогольный', 'Алкогольсіз глинтвейн'), sub: L('0,35 л', '0,35 л'), price: 2200 },
+      { id: 'hot-choc',     name: L('Горячий шоколад', 'Ыстық шоколад'), sub: L('0,35 л', '0,35 л'), price: 1500 },
+      { id: 'matcha',       name: L('Матча латте', 'Матча латте'), sub: L('0,35 л', '0,35 л'), price: 2000 },
+      { id: 'matcha-plant', name: L('Матча латте на растительном', 'Өсімдік сүтіндегі матча латте'), sub: L('0,35 л', '0,35 л'), price: 2400 },
+      { id: 'tea-black',    name: L('Чёрный чай', 'Қара шай'), sub: L('чайник 0,8 л', 'шәйнек 0,8 л'), price: 1500 },
+      { id: 'tea-green',    name: L('Зелёный чай сенча', 'Сенча көк шайы'), sub: L('чайник 0,8 л', 'шәйнек 0,8 л'), price: 1500 },
+      { id: 'tea-herbal',   name: L('Травяной чай с ромашкой', 'Түймедақ қосылған шөп шайы'), sub: L('чайник 0,8 л', 'шәйнек 0,8 л'), price: 1500 },
+      { id: 'tea-hibiscus', name: L('Фруктовый чай каркаде', 'Каркаде жеміс шайы'), sub: L('чайник 0,8 л', 'шәйнек 0,8 л'), price: 1500 }
+    ]}
+  ];
+
+  // Хлеб и дни выпечки
+  const EVERY = L('Каждый день', 'Күн сайын');
+  const BREADS = [
+    { id: 'baguette',  name: L('Багет', 'Багет'), price: 800, days: EVERY },
+    { id: 'tartine-w', name: L('Тартин белый', 'Ақ тартин'), price: 1200, days: EVERY },
+    { id: 'seeds',     name: L('Хлеб 3 семечки', '«3 тұқым» наны'), price: 1000, days: EVERY },
+    { id: 'tartine-r', name: L('Тартин ржаной', 'Қара бидай тартині'), price: 1200, days: L('Вт · Чт · Сб', 'Сс · Бс · Сн') },
+    { id: 'borodino',  name: L('Бородинский хлеб', 'Бородино наны'), price: 1200, days: L('Вт · Чт · Сб · Вс', 'Сс · Бс · Сн · Жс') },
+    { id: 'danish',    name: L('Датский хлеб', 'Дат наны'), price: 1500, days: L('Пн · Ср · Пт', 'Дс · Ср · Жм') },
+    { id: 'hokkaido',  name: L('Тостовый хлеб Хоккайдо', 'Хоккайдо тост наны'), price: 1400, days: L('Вт · Чт · Сб', 'Сс · Бс · Сн') }
+  ];
+
+  /* =========================================================
+     ТЕКСТЫ САЙТА (русский / казахский)
+     ========================================================= */
+  const T = {
+    ru: {
+      title: 'Paris-Brest — пекарня-кондитерская в Астане',
+      brandAria: 'Paris-Brest — на главную', navAria: 'Основное меню', openCart: 'Открыть корзину', closeCart: 'Закрыть корзину', openMenu: 'Открыть меню',
+      navBread: 'Хлеб', navMenu: 'Меню', navPhoto: 'Фото', navReviews: 'Отзывы', navAddresses: 'Адреса',
+      heroEyebrow: 'Французская пекарня в Астане · с 2019 года',
+      heroTitle: 'Круассаны, которые тают во рту',
+      heroText: 'Каждое утро печём хлеб на закваске, слоёную выпечку и то самое пирожное Paris-Brest. Соберите заказ на сайте и отправьте его нам в WhatsApp в один клик.',
+      heroOrder: 'Заказать онлайн', heroAddresses: 'Наши адреса', googleRating: 'рейтинг в Google',
+      altHero: 'Плетёная булочка с корицей', altBread: 'Хлеб «Три семечки»', altBaker: 'Пекарь Paris-Brest', altBarista: 'Бариста готовит кофе',
+      ulydala: 'Улы Дала 56/1', syganak: 'Сыганак 48А',
+      stripBreakfast: 'Завтраки', stripSandwich: 'Сэндвичи до 16:00', stripOrder: 'Заказ', stripWa: 'Через WhatsApp',
+      breadTitle: 'Хлеб на закваске', breadText: 'Каждый сорт печём в свой день недели, график указан на карточке.',
+      menuTitle: 'Меню', menuText: 'Нажмите «+», чтобы добавить в корзину. Заказ уйдёт в WhatsApp выбранной пекарни.',
+      menuFine: 'Цены в тенге. Актуальное меню уточняйте в пекарне или в Instagram.', tabsAria: 'Разделы меню',
+      galleryTitle: 'Из нашей пекарни', galleryText: 'Всё готовим сами, каждый день. Новинки в Instagram',
+      capNata: 'Паштел-де-ната', capSandwich: 'Сэндвичи', capCake: 'Бенто-торты', capPastry: 'Выпечка',
+      reviewsTitle: 'Что говорят гости', reviewsText: '4,9 ★ · отзывы Google', guest: 'Гость · Google',
+      aboutTitle: 'Маленькая пекарня с большой мечтой',
+      aboutP1: 'Paris-Brest открыли в ноябре 2019 года Татьяна и Мария. Они познакомились на кулинарном мастер-классе и обе мечтали о своём деле. Так в Астане появилась французская пекарня-кондитерская, куда люди приходят каждое утро за тёплым багетом.',
+      aboutP2: 'Своё имя пекарня взяла у классического французского пирожного из заварного теста с пралине.',
+      pill1: 'Пекарня-кондитерская', pill2: 'Муссовые десерты', pill3: 'Хлеб на закваске',
+      branchesTitle: 'Два адреса в Астане', branchesText: 'Закажите на сайте или напишите напрямую в WhatsApp пекарне, которая вам ближе.',
+      hours: 'Часы работы', hoursUly: 'Ежедневно 9:00–20:00', hoursSyg: 'Ежедневно 9:00–19:00', phone: 'Телефон', route: 'Маршрут',
+      instaText: 'Новинки, сезонные десерты и меню дня в нашем Instagram.', footer: 'Patisserie · Boulangerie · Астана',
+      cart: 'Корзина', cartEmpty: 'Корзина пока пустая.<br>Добавьте что-нибудь вкусное из меню.', openMenuBtn: 'Открыть меню',
+      sandwichNote: 'Сэндвичи и сырники готовим до 16:00.', bakery: 'Пекарня', getting: 'Получение',
+      pickupInfo: 'Самовывоз из выбранной пекарни', pickup: 'Самовывоз', pickupSub: 'заберу сам(а)', delivery: 'Доставка', deliverySub: 'цену уточнит менеджер',
+      addressPh: 'Адрес доставки', addressErr: 'Укажите адрес доставки',
+      details: 'Детали (необязательно)', namePh: 'Ваше имя', timePh: 'Время, например «сегодня к 18:00»', timeAria: 'Время получения', commentPh: 'Комментарий к заказу',
+      total: 'Итого', checkout: 'Заказать в WhatsApp', clearCart: 'Очистить корзину',
+      perPiece: 'шт', add: 'Добавить', addMore: 'Добавить ещё', removeOne: 'Убрать одну',
+      added: 'Добавлено: ', cleared: 'Корзина очищена', openingWa: 'Открываем WhatsApp…',
+      // Сообщение в WhatsApp
+      msgHello: 'Здравствуйте! Хочу сделать заказ с сайта Paris-Brest:', msgPcs: 'шт', msgBranch: 'Филиал', msgMethod: 'Способ получения:',
+      msgPickup: '• Самовывоз', msgDelivery: '• Доставка', msgTime: 'Время', msgName: 'Имя', msgComment: 'Комментарий', msgTotal: 'Итого'
+    },
+    kz: {
+      title: 'Paris-Brest — Астанадағы наубайхана-кондитерлік',
+      brandAria: 'Paris-Brest — басты бет', navAria: 'Негізгі мәзір', openCart: 'Себетті ашу', closeCart: 'Себетті жабу', openMenu: 'Мәзірді ашу',
+      navBread: 'Нан', navMenu: 'Мәзір', navPhoto: 'Фото', navReviews: 'Пікірлер', navAddresses: 'Мекенжайлар',
+      heroEyebrow: 'Астанадағы француз наубайханасы · 2019 жылдан бері',
+      heroTitle: 'Аузыңда еритін круассандар',
+      heroText: 'Күн сайын таңертең закваскадағы нан, қатпарлы тоқаштар және әйгілі Paris-Brest пирожныйын пісіреміз. Тапсырысты сайтта жинап, WhatsApp-қа бір басумен жіберіңіз.',
+      heroOrder: 'Онлайн тапсырыс', heroAddresses: 'Мекенжайларымыз', googleRating: 'Google рейтингі',
+      altHero: 'Даршын қосылған өрме тоқаш', altBread: '«3 тұқым» наны', altBaker: 'Paris-Brest наубайшысы', altBarista: 'Бариста кофе дайындап жатыр',
+      ulydala: 'Ұлы Дала 56/1', syganak: 'Сығанақ 48А',
+      stripBreakfast: 'Таңғы ас', stripSandwich: 'Сэндвичтер 16:00-ге дейін', stripOrder: 'Тапсырыс', stripWa: 'WhatsApp арқылы',
+      breadTitle: 'Закваскадағы нан', breadText: 'Әр нан түрін аптаның белгілі бір күні пісіреміз, кестесі карточкада көрсетілген.',
+      menuTitle: 'Мәзір', menuText: 'Себетке қосу үшін «+» басыңыз. Тапсырыс таңдалған наубайхананың WhatsApp-ына жіберіледі.',
+      menuFine: 'Бағалар теңгемен. Өзекті мәзірді наубайханадан немесе Instagram-нан нақтылаңыз.', tabsAria: 'Мәзір бөлімдері',
+      galleryTitle: 'Біздің наубайханадан', galleryText: 'Бәрін өзіміз, күн сайын дайындаймыз. Жаңалықтар Instagram-да',
+      capNata: 'Паштел-де-ната', capSandwich: 'Сэндвичтер', capCake: 'Бенто-торттар', capPastry: 'Тоқаштар',
+      reviewsTitle: 'Қонақтар пікірі', reviewsText: '4,9 ★ · Google пікірлері', guest: 'Қонақ · Google',
+      aboutTitle: 'Үлкен арманы бар кішкентай наубайхана',
+      aboutP1: 'Paris-Brest-ті 2019 жылдың қарашасында Татьяна мен Мария ашты. Олар аспаздық шеберлік сабағында танысып, екеуі де өз ісін ашуды армандаған. Осылайша Астанада француз наубайхана-кондитерлігі пайда болды: мұнда адамдар күн сайын таңертең жылы багет алуға келеді.',
+      aboutP2: 'Наубайхана атауын праліне қосылған заварной қамырдан жасалатын классикалық француз пирожныйынан алды.',
+      pill1: 'Наубайхана-кондитерлік', pill2: 'Мусс десерттері', pill3: 'Закваскадағы нан',
+      branchesTitle: 'Астанада екі мекенжай', branchesText: 'Сайттан тапсырыс беріңіз немесе өзіңізге жақын наубайханаға WhatsApp арқылы тікелей жазыңыз.',
+      hours: 'Жұмыс уақыты', hoursUly: 'Күн сайын 9:00–20:00', hoursSyg: 'Күн сайын 9:00–19:00', phone: 'Телефон', route: 'Бағыт',
+      instaText: 'Жаңа өнімдер, маусымдық десерттер мен күн мәзірі біздің Instagram-да.', footer: 'Patisserie · Boulangerie · Астана',
+      cart: 'Себет', cartEmpty: 'Себет әзірге бос.<br>Мәзірден дәмді бірдеңе қосыңыз.', openMenuBtn: 'Мәзірді ашу',
+      sandwichNote: 'Сэндвичтер мен сырниктер 16:00-ге дейін дайындалады.', bakery: 'Наубайхана', getting: 'Алу тәсілі',
+      pickupInfo: 'Таңдалған наубайханадан өзіңіз алып кетесіз', pickup: 'Өзім алып кетемін', pickupSub: 'наубайханадан', delivery: 'Жеткізу', deliverySub: 'бағасын менеджер нақтылайды',
+      addressPh: 'Жеткізу мекенжайы', addressErr: 'Жеткізу мекенжайын көрсетіңіз',
+      details: 'Қосымша (міндетті емес)', namePh: 'Атыңыз', timePh: 'Уақыты, мысалы «бүгін 18:00-ге»', timeAria: 'Алу уақыты', commentPh: 'Тапсырысқа пікір',
+      total: 'Барлығы', checkout: 'WhatsApp арқылы тапсырыс беру', clearCart: 'Себетті тазалау',
+      perPiece: 'дана', add: 'Қосу', addMore: 'Тағы қосу', removeOne: 'Біреуін алып тастау',
+      added: 'Қосылды: ', cleared: 'Себет тазаланды', openingWa: 'WhatsApp ашылуда…',
+      msgHello: 'Сәлеметсіз бе! Paris-Brest сайтынан тапсырыс бергім келеді:', msgPcs: 'дана', msgBranch: 'Филиал', msgMethod: 'Тапсыру әдісі:',
+      msgPickup: '• Өзім алып кетемін (самовывоз)', msgDelivery: '• Жеткізу (доставка)', msgTime: 'Уақыты', msgName: 'Аты', msgComment: 'Пікір', msgTotal: 'Жалпы сомасы'
+    }
   };
 
   /* ========================================================= */
   const $ = s => document.querySelector(s);
+  const $$ = s => document.querySelectorAll(s);
   const fmt = n => n.toLocaleString('ru-RU').replace(/ | /g, ' ') + ' ₸';
-  const DAY_NAMES = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
-  const today = new Date().getDay();
   const reduceMotion = () => window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  };
+
+  let lang = store.get('parisbrest-lang') === 'kz' ? 'kz' : 'ru';
+  const t = key => T[lang][key] ?? T.ru[key] ?? key;
+  const tr = obj => obj ? (obj[lang] || obj.ru) : '';
 
   const PRODUCTS = {};
   MENU.forEach(c => c.items.forEach(i => { PRODUCTS[i.id] = i; }));
-  BREADS.forEach(b => { PRODUCTS[b.id] = { ...b, sub: b.days.includes(today) ? '' : 'под заказ' }; });
+  BREADS.forEach(b => { PRODUCTS[b.id] = b; });
 
   const ICON_PLUS  = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
   const ICON_MINUS = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg>';
@@ -728,34 +841,44 @@
   /* ---------- Корзина (сохраняется в браузере) ---------- */
   const STORE_KEY = 'parisbrest-cart-v1';
   let cart = {};
-  try { cart = JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (e) { cart = {}; }
+  try { cart = JSON.parse(store.get(STORE_KEY)) || {}; } catch (e) { cart = {}; }
   Object.keys(cart).forEach(id => { if (!PRODUCTS[id] || !(cart[id] > 0)) delete cart[id]; });
-  const save = () => { try { localStorage.setItem(STORE_KEY, JSON.stringify(cart)); } catch (e) {} };
+  const save = () => store.set(STORE_KEY, JSON.stringify(cart));
 
   const qty = id => cart[id] || 0;
   const cartCount = () => Object.values(cart).reduce((a, b) => a + b, 0);
   const cartTotal = () => Object.entries(cart).reduce((s, [id, q]) => s + PRODUCTS[id].price * q, 0);
 
   function control(id, light) {
-    const p = PRODUCTS[id];
+    const name = tr(PRODUCTS[id].name);
     const q = qty(id);
-    if (!q) return `<button class="add-btn" data-add="${id}" aria-label="Добавить: ${p.name}">${ICON_PLUS}</button>`;
+    if (!q) return `<button class="add-btn" data-add="${id}" aria-label="${t('add')}: ${name}">${ICON_PLUS}</button>`;
     return `<span class="stepper${light ? ' light' : ''}">
-      <button data-dec="${id}" aria-label="Убрать одну: ${p.name}">${ICON_MINUS}</button>
+      <button data-dec="${id}" aria-label="${t('removeOne')}: ${name}">${ICON_MINUS}</button>
       <output>${q}</output>
-      <button data-inc="${id}" aria-label="Добавить ещё: ${p.name}">${ICON_PLUS}</button>
+      <button data-inc="${id}" aria-label="${t('addMore')}: ${name}">${ICON_PLUS}</button>
     </span>`;
+  }
+
+  /* ---------- Статичные тексты ---------- */
+  function applyStatic() {
+    document.documentElement.lang = lang === 'kz' ? 'kk' : 'ru';
+    document.title = t('title');
+    $$('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+    $$('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+    $$('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+    $$('[data-i18n-aria]').forEach(el => { el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
+    $$('[data-i18n-alt]').forEach(el => { el.alt = t(el.dataset.i18nAlt); });
+    $('#tabs').setAttribute('aria-label', t('tabsAria'));
+    $$('[data-lang]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
   }
 
   /* ---------- Хлеб ---------- */
   function renderBread() {
-    const list = BREADS.map(b => ({ ...b, isToday: b.days.includes(today) })).sort((a, b) => b.isToday - a.isToday);
-    const count = list.filter(b => b.isToday).length;
-    $('#bread-intro').textContent = `Каждый хлеб на закваске печём в свой день недели. Сегодня ${DAY_NAMES[today]}, на полках ${count} видов хлеба. Остальные можно взять под заказ.`;
-    $('#bread-grid').innerHTML = list.map(b => `
-      <div class="bread-card ${b.isToday ? 'today' : ''}">
-        <div class="bread-meta"><span class="days">${b.label}</span>${b.isToday ? '<span class="tag">Сегодня</span>' : '<span class="tag soft">Под заказ</span>'}</div>
-        <h3>${b.name}</h3>
+    $('#bread-grid').innerHTML = BREADS.map(b => `
+      <div class="bread-card">
+        <span class="days">${tr(b.days)}</span>
+        <h3>${tr(b.name)}</h3>
         <div class="bread-foot"><span class="price">${fmt(b.price)}</span><span data-slot="${b.id}">${control(b.id)}</span></div>
       </div>`).join('');
   }
@@ -764,17 +887,17 @@
   let currentTab = 'pastry';
   function renderTabs() {
     $('#tabs').innerHTML = MENU.map(c =>
-      `<button class="tab" role="tab" data-tab="${c.id}" aria-selected="${c.id === currentTab}">${c.label}</button>`).join('');
+      `<button class="tab" role="tab" data-tab="${c.id}" aria-selected="${c.id === currentTab}">${tr(c.label)}</button>`).join('');
   }
   function renderMenu() {
     const cat = MENU.find(c => c.id === currentTab);
     $('#menu-panel').innerHTML =
-      (cat.note ? `<p class="menu-note">${cat.note}</p>` : '') +
+      (cat.note ? `<p class="menu-note">${tr(cat.note)}</p>` : '') +
       '<ul class="menu-list">' + cat.items.map(i => `
         <li>
           <div class="info">
-            <span class="name">${i.name}</span>
-            ${i.sub ? `<small>${i.sub}</small>` : ''}
+            <span class="name">${tr(i.name)}</span>
+            ${i.sub ? `<small>${tr(i.sub)}</small>` : ''}
             <span class="price">${fmt(i.price)}</span>
           </div>
           <span data-slot="${i.id}">${control(i.id)}</span>
@@ -783,7 +906,7 @@
 
   /* ---------- Корзина: отрисовка ---------- */
   function refreshSlots() {
-    document.querySelectorAll('[data-slot]').forEach(el => { el.innerHTML = control(el.dataset.slot); });
+    $$('[data-slot]').forEach(el => { el.innerHTML = control(el.dataset.slot); });
   }
   function renderCart() {
     const ids = Object.keys(cart);
@@ -794,7 +917,7 @@
     $('#cart-items').innerHTML = ids.map(id => {
       const p = PRODUCTS[id];
       return `<li>
-        <div class="info"><span class="name">${p.name}</span>${p.sub ? `<small>${p.sub}</small>` : ''}<small>${fmt(p.price)} / шт</small></div>
+        <div class="info"><span class="name">${tr(p.name)}</span>${p.sub ? `<small>${tr(p.sub)}</small>` : ''}<small>${fmt(p.price)} / ${t('perPiece')}</small></div>
         ${control(id, true)}
         <span class="line-sum">${fmt(p.price * cart[id])}</span>
       </li>`;
@@ -810,6 +933,7 @@
     $('#cart-fab').classList.toggle('show', n > 0 && !$('#cart').classList.contains('open'));
   }
   function update() { save(); refreshSlots(); renderCart(); }
+  function renderAll() { applyStatic(); renderBread(); renderTabs(); renderMenu(); renderCart(); }
 
   function bump(el) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
 
@@ -836,27 +960,36 @@
 
   let toastTimer;
   function toast(msg) {
-    const t = $('#toast');
-    t.textContent = msg;
-    t.classList.add('show');
+    const el = $('#toast');
+    el.textContent = msg;
+    el.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 1800);
   }
 
   function add(id, srcEl) {
     cart[id] = qty(id) + 1;
-    if (cart[id] === 1) toast('Добавлено: ' + PRODUCTS[id].name);
+    if (cart[id] === 1) toast(t('added') + tr(PRODUCTS[id].name));
     update();
     if (srcEl) {
-      // анимация вылетает из нового степпера на месте кнопки
       const slot = document.querySelector(`[data-slot="${id}"]`);
-      flyToCart(slot && document.body.contains(slot) ? slot : srcEl);
+      flyToCart(slot || srcEl);
     }
   }
   function dec(id) {
     cart[id] = qty(id) - 1;
     if (cart[id] <= 0) delete cart[id];
     update();
+  }
+
+  /* ---------- Язык ---------- */
+  function setLang(next) {
+    if (next === lang) return;
+    lang = next;
+    store.set('parisbrest-lang', lang);
+    if (reduceMotion()) { renderAll(); return; }
+    document.body.classList.add('switching');
+    setTimeout(() => { renderAll(); document.body.classList.remove('switching'); }, 180);
   }
 
   /* ---------- Открыть / закрыть корзину ---------- */
@@ -880,34 +1013,35 @@
   }
 
   /* ---------- Сообщение для WhatsApp ---------- */
+  const currentMethod = () => ENABLE_DELIVERY ? document.querySelector('input[name=method]:checked').value : 'pickup';
+
   function buildMessage() {
     const branch = BRANCHES[document.querySelector('input[name=branch]:checked').value];
-    const method = document.querySelector('input[name=method]:checked').value;
+    const method = currentMethod();
     const address = $('#address').value.trim();
     const name = $('#name').value.trim();
     const time = $('#time').value.trim();
     const comment = $('#comment').value.trim();
 
-    const lines = ['Сәлеметсіз бе! Paris-Brest сайтынан тапсырыс бергім келеді:'];
+    const lines = [t('msgHello')];
     Object.entries(cart).forEach(([id, q], i) => {
       const p = PRODUCTS[id];
-      const extra = p.sub ? ` (${p.sub})` : '';
-      lines.push(`${i + 1}. ${p.name}${extra} — ${q} дана = ${fmt(p.price * q)}`);
+      const extra = p.sub ? ` (${tr(p.sub)})` : '';
+      lines.push(`${i + 1}. ${tr(p.name)}${extra} — ${q} ${t('msgPcs')} = ${fmt(p.price * q)}`);
     });
-    lines.push('', `Филиал: ${branch.kz}`, 'Тапсыру әдісі:');
-    lines.push(method === 'pickup' ? '• Өзім алып кетемін (самовывоз)' : `• Жеткізу (доставка): ${address}`);
-    if (time) lines.push(`Уақыты: ${time}`);
-    if (name) lines.push(`Аты: ${name}`);
-    if (comment) lines.push(`Пікір: ${comment}`);
-    lines.push('', `Жалпы сомасы: ${fmt(cartTotal())}`);
+    lines.push('', `${t('msgBranch')}: ${branch[lang]}`, t('msgMethod'));
+    lines.push(method === 'pickup' ? t('msgPickup') : `${t('msgDelivery')}: ${address}`);
+    if (time) lines.push(`${t('msgTime')}: ${time}`);
+    if (name) lines.push(`${t('msgName')}: ${name}`);
+    if (comment) lines.push(`${t('msgComment')}: ${comment}`);
+    lines.push('', `${t('msgTotal')}: ${fmt(cartTotal())}`);
     return { text: lines.join('\n'), phone: branch.phone };
   }
 
   function checkout() {
     if (!cartCount()) return;
-    const method = document.querySelector('input[name=method]:checked').value;
     const addr = $('#address');
-    if (method === 'delivery' && !addr.value.trim()) {
+    if (currentMethod() === 'delivery' && !addr.value.trim()) {
       addr.classList.remove('error'); void addr.offsetWidth; addr.classList.add('error');
       $('#address-err').hidden = false;
       addr.focus();
@@ -915,7 +1049,7 @@
     }
     const { text, phone } = buildMessage();
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
-    toast('Открываем WhatsApp…');
+    toast(t('openingWa'));
     const w = window.open(url, '_blank', 'noopener');
     if (!w) location.href = url;
   }
@@ -926,9 +1060,11 @@
     const incBtn = e.target.closest('[data-inc]');
     const decBtn = e.target.closest('[data-dec]');
     const tabBtn = e.target.closest('[data-tab]');
+    const langBtn = e.target.closest('[data-lang]');
     if (addBtn) add(addBtn.dataset.add, addBtn);
     else if (incBtn) add(incBtn.dataset.inc, null);
     else if (decBtn) dec(decBtn.dataset.dec);
+    else if (langBtn) setLang(langBtn.dataset.lang);
     else if (tabBtn) {
       currentTab = tabBtn.dataset.tab;
       renderTabs(); renderMenu();
@@ -945,10 +1081,13 @@
   $('#overlay').addEventListener('click', closeCart);
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#cart').classList.contains('open')) closeCart(); });
   $('#checkout').addEventListener('click', checkout);
-  $('#clear-cart').addEventListener('click', () => { cart = {}; update(); toast('Корзина очищена'); });
+  $('#clear-cart').addEventListener('click', () => { cart = {}; update(); toast(t('cleared')); });
 
-  document.querySelectorAll('input[name=method]').forEach(r => r.addEventListener('change', () => {
-    const delivery = document.querySelector('input[name=method]:checked').value === 'delivery';
+  // Доставка: показать выбор способа, если включена
+  $('#pickup-info').hidden = ENABLE_DELIVERY;
+  $('#method-wrap').hidden = !ENABLE_DELIVERY;
+  $$('input[name=method]').forEach(r => r.addEventListener('change', () => {
+    const delivery = currentMethod() === 'delivery';
     $('#address-wrap').hidden = !delivery;
     if (!delivery) { $('#address-err').hidden = true; $('#address').classList.remove('error'); }
   }));
@@ -983,17 +1122,13 @@
     const io = new IntersectionObserver(entries => {
       entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
     }, { threshold: 0.12 });
-    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+    $$('.reveal').forEach(el => io.observe(el));
   } else {
-    document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+    $$('.reveal').forEach(el => el.classList.add('in'));
   }
 
   $('#year').textContent = new Date().getFullYear();
-
-  renderBread();
-  renderTabs();
-  renderMenu();
-  renderCart();
+  renderAll();
 </script>
 </body>
 </html>
