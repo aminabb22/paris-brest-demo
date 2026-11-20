@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Paris-Brest — пекарня-кондитерская в Астане</title>
+  <meta name="description" content="Paris-Brest — французская пекарня-кондитерская в Астане. Круассаны, хлеб на закваске, муссовые десерты. Заказ онлайн через WhatsApp. Улы Дала 56/1 и Сыганак 48А.">
+  <meta name="theme-color" content="#F5F0E6">
+  <link rel="icon" href="images/logo.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Montserrat:wght@400;500;600&family=Pinyon+Script&display=swap" rel="stylesheet">
+  <style>
+    /* ============ Tokens ============ */
+    :root {
+      --bg: #F5F0E6;
+      --paper: #FBF8F2;
+      --sand: #EDE3CF;
+      --ink: #2A2420;
+      --body: #4A413A;
+      --muted: #6B6058;
+      --line: #E2D9C8;
+      --line-strong: #CFC3AE;
+      --gold: #D4A72C;
+      --accent: #6E4B33;
+      --wa: #1E6B45;
+      --wa-dark: #164F33;
+      --danger: #A23B2A;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Montserrat', system-ui, sans-serif;
+      --script: 'Pinyon Script', cursive;
+      --ease: cubic-bezier(.2,.8,.2,1);
+      --spring: cubic-bezier(.34,1.56,.64,1);
+      --pad: 24px;
+    }
+    @media (max-width: 600px) { :root { --pad: 18px; } }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.6; -webkit-tap-highlight-color: transparent; }
+    body.no-scroll { overflow: hidden; }
+    img { display: block; max-width: 100%; }
+    a { color: var(--accent); }
+    a:hover { color: #4A3222; }
+    button { font: inherit; color: inherit; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+
+    .wrap { max-width: 1180px; margin: 0 auto; padding-left: var(--pad); padding-right: var(--pad); }
+    .eyebrow { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+    .script { font-family: var(--script); font-size: 40px; line-height: 1; color: var(--accent); }
+    h1, h2, h3 { font-family: var(--serif); font-weight: 500; margin: 0; }
+    h2 { font-size: clamp(34px, 4.5vw, 54px); line-height: 1.05; }
+    p { margin: 0; }
+    .section { padding: 96px 0; }
+    .section-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 32px; }
+    .section-head .titles { display: flex; flex-direction: column; gap: 8px; }
+    .section-head p { max-width: 440px; color: var(--body); }
+    @media (max-width: 600px) {
+      .section { padding: 56px 0; }
+      .script { font-size: 32px; }
+      .section-head { margin-bottom: 22px; }
+    }
+
+    /* ============ Buttons + animations ============ */
+    .btn {
+      position: relative; overflow: hidden; isolation: isolate;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      min-height: 48px; padding: 14px 26px; border-radius: 999px;
+      font-size: 13px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; text-decoration: none;
+      border: 1px solid var(--ink); cursor: pointer; background: transparent; color: var(--ink);
+      transition: transform .25s var(--ease), box-shadow .25s var(--ease), background .25s, color .25s, border-color .25s;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 22px -10px rgba(42,36,32,.45); }
+    .btn:active { transform: translateY(0) scale(.96); box-shadow: none; transition-duration: .08s; }
+    .btn-dark { background: var(--ink); color: var(--bg); }
+    .btn-dark:hover { background: #000; color: var(--bg); }
+    .btn-line:hover { background: var(--ink); color: var(--bg); }
+    .btn-wa { background: var(--wa); border-color: var(--wa); color: #fff; }
+    .btn-wa:hover { background: var(--wa-dark); border-color: var(--wa-dark); color: #fff; box-shadow: 0 12px 24px -10px rgba(30,107,69,.6); }
+    .btn[disabled] { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn .arrow { transition: transform .25s var(--ease); }
+    .btn:hover .arrow { transform: translateX(4px); }
+    /* shine sweep on dark buttons */
+    .btn-dark::after, .btn-wa::after {
+      content: ""; position: absolute; inset: 0; z-index: -1;
+      background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.18) 50%, transparent 70%);
+      transform: translateX(-120%); transition: transform .7s var(--ease);
+    }
+    .btn-dark:hover::after, .btn-wa:hover::after { transform: translateX(120%); }
+    /* ripple */
+    .ripple { position: absolute; border-radius: 50%; transform: scale(0); background: currentColor; opacity: .25; pointer-events: none; animation: ripple .6s var(--ease) forwards; z-index: 0; }
+    @keyframes ripple { to { transform: scale(2.6); opacity: 0; } }
+
+    .icon-btn { width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--paper); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; position: relative; flex: none; transition: transform .2s var(--ease), background .2s, border-color .2s; }
+    .icon-btn:hover { transform: translateY(-2px); border-color: var(--ink); }
+    .icon-btn:active { transform: scale(.92); }
+
+    /* ============ Header ============ */
+    header { position: sticky; top: 0; z-index: 50; background: rgba(245,240,230,.92); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+    .nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 12px; padding-bottom: 12px; }
+    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); min-width: 0; }
+    .brand img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 1px solid var(--line-strong); background: #fff; flex: none; transition: transform .5s var(--spring); }
+    .brand:hover img { transform: rotate(-8deg) scale(1.06); }
+    .brand-name { display: flex; flex-direction: column; line-height: 1.1; }
+    .brand-name b { font-family: var(--serif); font-size: 26px; font-weight: 600; }
+    .brand-name span { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .nav-links { display: flex; align-items: center; gap: 26px; margin-right: 8px; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; }
+    .nav-links a { color: var(--ink); text-decoration: none; padding: 10px 0; position: relative; }
+    .nav-links a::after { content: ""; position: absolute; left: 0; right: 0; bottom: 4px; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: right; transition: transform .3s var(--ease); }
+    .nav-links a:hover::after { transform: scaleX(1); transform-origin: left; }
+    .menu-toggle { display: none; }
+    .badge { position: absolute; top: -4px; right: -4px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 999px; background: var(--accent); color: #fff; font-size: 11px; font-weight: 600; line-height: 20px; text-align: center; transform: scale(0); transition: transform .3s var(--spring); }
+    .badge.show { transform: scale(1); }
+    .bump { animation: bump .45s var(--spring); }
+    @keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
+    @media (max-width: 900px) {
+      .menu-toggle { display: inline-flex; }
+      .nav-links { position: absolute; left: 0; right: 0; top: 100%; margin: 0; flex-direction: column; align-items: stretch; gap: 0; background: var(--bg); border-bottom: 1px solid var(--line); padding: 4px var(--pad) 16px; transform-origin: top; transform: scaleY(.96); opacity: 0; pointer-events: none; transition: opacity .25s var(--ease), transform .25s var(--ease); }
+      .nav-links.open { opacity: 1; transform: none; pointer-events: auto; }
+      .nav-links a { padding: 14px 0; border-bottom: 1px solid var(--line); }
+      .nav-links a::after { display: none; }
+    }
+    @media (max-width: 400px) {
+      .brand { gap: 10px; }
+      .brand-name b { font-size: 22px; }
+      .brand-name span { letter-spacing: 2px; font-size: 9px; }
+      .brand img { width: 40px; height: 40px; }
+      .nav-right { gap: 8px; }
+    }
+
+    /* ============ Hero ============ */
+    .hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 56px; align-items: center; padding-top: 64px; padding-bottom: 80px; }
+    .hero-text { display: flex; flex-direction: column; gap: 22px; }
+    .hero-text .eyebrow { color: var(--accent); letter-spacing: 3px; font-size: 12px; }
+    .hero h1 { font-size: clamp(42px, 6.4vw, 86px); line-height: 1; letter-spacing: -1px; }
+    .hero-text > p { max-width: 520px; font-size: 17px; color: var(--body); }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+    .hero-photo { position: relative; }
+    .hero-photo img { width: 100%; aspect-ratio: 5 / 4; object-fit: cover; object-position: 50% 50%; border-radius: 240px 240px 24px 24px; animation: heroIn 1s var(--ease) both; }
+    @keyframes heroIn { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
+    .hero-badge { position: absolute; left: -24px; bottom: 32px; background: var(--paper); border: 1px solid var(--line); border-radius: 18px; padding: 14px 18px; box-shadow: 0 10px 30px rgba(42,36,32,.1); animation: floaty 5s ease-in-out infinite; }
+    .hero-badge b { font-family: var(--serif); font-size: 30px; font-weight: 600; display: block; line-height: 1; }
+    .hero-badge span { font-size: 12px; color: var(--muted); }
+    @keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; gap: 26px; padding-top: 20px; padding-bottom: 44px; }
+      .hero-photo { order: -1; }
+      .hero-photo img { aspect-ratio: 4 / 3; border-radius: 22px; object-position: 50% 52%; }
+      .hero-badge { left: 12px; bottom: 12px; padding: 9px 13px; border-radius: 14px; }
+      .hero-badge b { font-size: 22px; }
+      .hero-badge span { font-size: 11px; }
+      .hero-text { gap: 16px; }
+      .hero-text .eyebrow { font-size: 11px; letter-spacing: 2px; }
+      .hero-text > p { font-size: 16px; }
+      .hero-actions .btn { flex: 1 1 auto; padding-left: 18px; padding-right: 18px; }
+    }
+
+    /* ============ Info strip ============ */
+    .strip { background: var(--paper); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .strip-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; padding-top: 26px; padding-bottom: 26px; }
+    .strip-grid div { display: flex; flex-direction: column; gap: 2px; }
+    .strip-grid strong { font-family: var(--serif); font-size: 23px; font-weight: 500; line-height: 1.2; }
+    @media (max-width: 900px) { .strip-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 16px; padding-top: 20px; padding-bottom: 20px; } .strip-grid strong { font-size: 19px; } .strip-grid .eyebrow { font-size: 10px; letter-spacing: 2px; } }
+
+    /* ============ Bread ============ */
+    .bread-layout { display: grid; grid-template-columns: 1fr 2fr; gap: 24px; align-items: start; }
+    .bread-photo img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 20px; }
+    .bread-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+    .bread-card { border-radius: 16px; padding: 16px 16px 14px; display: flex; flex-direction: column; gap: 8px; border: 1px dashed var(--line-strong); transition: transform .25s var(--ease), box-shadow .25s var(--ease); }
+    .bread-card.today { background: var(--paper); border: 1px solid var(--gold); }
+    .bread-card:hover { transform: translateY(-3px); box-shadow: 0 14px 30px -18px rgba(42,36,32,.35); }
+    .bread-card h3 { font-size: 22px; font-weight: 600; line-height: 1.15; }
+    .bread-card:not(.today) h3 { color: var(--body); }
+    .bread-meta { display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-wrap: wrap; }
+    .bread-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 2px; }
+    .price { font-weight: 600; white-space: nowrap; }
+    .days { font-size: 12px; color: var(--muted); }
+    .tag { font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; background: var(--ink); color: var(--bg); padding: 4px 9px; border-radius: 999px; }
+    .tag.soft { background: transparent; color: var(--muted); border: 1px solid var(--line-strong); }
+    @media (max-width: 900px) {
+      .bread-layout { grid-template-columns: 1fr; }
+      .bread-photo { display: none; }
+      .bread-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .bread-card { padding: 13px 12px 12px; gap: 6px; }
+      .bread-card h3 { font-size: 19px; }
+      .days { font-size: 11px; }
+      .tag { font-size: 9px; padding: 3px 7px; }
+    }
+
+    /* ============ Qty controls ============ */
+    .add-btn { width: 40px; height: 40px; flex: none; border-radius: 999px; border: 1px solid var(--ink); background: var(--ink); color: var(--bg); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; transition: transform .25s var(--spring), background .2s; }
+    .add-btn:hover { transform: scale(1.08) rotate(90deg); }
+    .add-btn:active { transform: scale(.88); }
+    .stepper { display: inline-flex; align-items: center; gap: 2px; flex: none; background: var(--ink); color: var(--bg); border-radius: 999px; padding: 2px; animation: popIn .3s var(--spring); }
+    .stepper button { width: 36px; height: 36px; border: 0; border-radius: 999px; background: transparent; color: var(--bg); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: background .2s, transform .15s; }
+    .stepper button:hover { background: rgba(255,255,255,.14); }
+    .stepper button:active { transform: scale(.85); }
+    .stepper output { min-width: 22px; text-align: center; font-weight: 600; font-size: 14px; }
+    .stepper.light { background: var(--sand); color: var(--ink); animation: none; }
+    .stepper.light button { color: var(--ink); }
+    .stepper.light button:hover { background: rgba(42,36,32,.08); }
+    @keyframes popIn { from { transform: scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
+
+    /* ============ Menu ============ */
+    .tabs { display: flex; gap: 8px; margin: 0 -2px 18px; padding: 2px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab { flex: none; scroll-snap-align: start; font-family: var(--sans); font-size: 13px; letter-spacing: 1px; text-transform: uppercase; padding: 11px 18px; min-height: 44px; border-radius: 999px; border: 1px solid var(--line-strong); background: transparent; color: var(--ink); cursor: pointer; white-space: nowrap; transition: background .25s, color .25s, border-color .25s, transform .2s var(--ease); }
+    .tab:hover { border-color: var(--ink); transform: translateY(-2px); }
+    .tab:active { transform: scale(.95); }
+    .tab[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+    .menu-panel { background: var(--paper); border: 1px solid var(--line); border-radius: 20px; padding: clamp(10px, 3.5vw, 40px); }
+    .menu-note { margin: 6px 6px 10px; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); }
+    .menu-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 48px; list-style: none; margin: 0; padding: 0; }
+    .menu-list li { display: flex; align-items: center; gap: 14px; padding: 14px 6px; border-bottom: 1px solid var(--line); animation: rowIn .45s var(--ease) both; }
+    .menu-list li:nth-child(2) { animation-delay: .03s } .menu-list li:nth-child(3) { animation-delay: .06s } .menu-list li:nth-child(4) { animation-delay: .09s }
+    .menu-list li:nth-child(5) { animation-delay: .12s } .menu-list li:nth-child(6) { animation-delay: .15s } .menu-list li:nth-child(7) { animation-delay: .18s } .menu-list li:nth-child(8) { animation-delay: .21s }
+    @keyframes rowIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .menu-list .info { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+    .menu-list .name { font-size: 15px; letter-spacing: .4px; text-transform: uppercase; line-height: 1.35; }
+    .menu-list small { font-size: 12px; color: var(--muted); }
+    .menu-list .price { font-size: 15px; margin-top: 2px; color: var(--accent); }
+    .fine { margin-top: 14px; font-size: 12px; color: var(--muted); }
+    @media (max-width: 760px) {
+      .menu-list { grid-template-columns: 1fr; }
+      .menu-list li { padding: 12px 6px; }
+      .menu-list .name { font-size: 14px; }
+      .menu-list .price { font-size: 14px; }
+    }
+
+    /* ============ Gallery ============ */
+    .gallery { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: 220px; gap: 14px; }
+    .gallery figure { margin: 0; overflow: hidden; border-radius: 18px; position: relative; }
+    .gallery img { width: 100%; height: 100%; object-fit: cover; transition: transform .7s var(--ease); }
+    .gallery figure:hover img { transform: scale(1.06); }
+    .gallery figcaption { position: absolute; left: 10px; bottom: 10px; background: rgba(251,248,242,.94); color: var(--ink); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 6px 12px; border-radius: 999px; }
+    .g-tall { grid-row: span 2; }
+    .g-wide { grid-column: span 2; }
+    @media (max-width: 900px) {
+      .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 170px; gap: 10px; }
+      .gallery figure { border-radius: 14px; }
+    }
+
+    /* ============ Reviews ============ */
+    .reviews { background: var(--ink); color: var(--bg); }
+    .reviews .section-head p { color: #D9CFBE; }
+    .review-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+    .review { margin: 0; border: 1px solid #4A413A; border-radius: 18px; padding: 26px; display: flex; flex-direction: column; justify-content: space-between; gap: 18px; transition: transform .3s var(--ease), border-color .3s; }
+    .review:hover { transform: translateY(-4px); border-color: #7a6d62; }
+    .review blockquote { margin: 0; font-family: var(--serif); font-size: 21px; line-height: 1.35; font-style: italic; }
+    .review figcaption { font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: #D9CFBE; }
+    @media (max-width: 900px) {
+      .review-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 12px; margin-right: calc(-1 * var(--pad)); padding-right: var(--pad); scrollbar-width: none; }
+      .review-grid::-webkit-scrollbar { display: none; }
+      .review { flex: 0 0 82%; scroll-snap-align: start; padding: 22px; }
+      .review blockquote { font-size: 19px; }
+    }
+
+    /* ============ About ============ */
+    .about { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+    .about-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .about-photos img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 18px; }
+    .about-photos img:last-child { margin-top: 44px; }
+    .about-text { display: flex; flex-direction: column; gap: 18px; color: var(--body); }
+    .about-text h2 { color: var(--ink); }
+    .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pill { border: 1px solid var(--line-strong); border-radius: 999px; padding: 8px 14px; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--ink); }
+    @media (max-width: 900px) { .about { grid-template-columns: 1fr; gap: 28px; } .about-photos img:last-child { margin-top: 28px; } }
+
+    /* ============ Branches ============ */
+    .branches-bg { background: var(--paper); border-top: 1px solid var(--line); }
+    .branches { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+    .branch { background: var(--bg); border: 1px solid var(--line); border-radius: 22px; padding: 30px; display: flex; flex-direction: column; gap: 20px; transition: transform .3s var(--ease), box-shadow .3s var(--ease); }
+    .branch:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -24px rgba(42,36,32,.4); }
+    .branch h3 { font-size: 32px; line-height: 1.1; }
+    .branch dl { margin: 0; display: grid; gap: 14px; }
+    .branch dt { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+    .branch dd { margin: 2px 0 0; font-size: 18px; }
+    .branch dd a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line-strong); }
+    .branch .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: auto; }
+    .insta { margin-top: 28px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; border-top: 1px solid var(--line); padding-top: 24px; }
+    @media (max-width: 760px) {
+      .branches { grid-template-columns: 1fr; gap: 14px; }
+      .branch { padding: 22px; gap: 16px; }
+      .branch h3 { font-size: 28px; }
+      .branch .actions .btn { flex: 1 1 auto; }
+    }
+
+    footer { background: var(--ink); color: #D9CFBE; font-size: 13px; padding-bottom: env(safe-area-inset-bottom); }
+    footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; padding-top: 26px; padding-bottom: 96px; }
+    footer b { font-family: var(--serif); font-size: 22px; font-weight: 500; color: var(--bg); }
+
+    /* ============ Floating cart ============ */
+    .cart-fab { position: fixed; z-index: 60; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); display: inline-flex; align-items: center; gap: 12px; padding: 10px 10px 10px 20px; min-height: 56px; border-radius: 999px; border: 0; background: var(--ink); color: var(--bg); cursor: pointer; box-shadow: 0 16px 34px -12px rgba(42,36,32,.55); transform: translateY(160%); transition: transform .45s var(--spring), box-shadow .25s; }
+    .cart-fab.show { transform: none; }
+    .cart-fab:hover { box-shadow: 0 20px 40px -12px rgba(42,36,32,.7); }
+    .cart-fab .label { font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; opacity: .8; }
+    .cart-fab .sum { font-weight: 600; font-size: 15px; }
+    .cart-fab .count { background: var(--bg); color: var(--ink); border-radius: 999px; min-width: 36px; height: 36px; padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-weight: 600; font-size: 14px; }
+    @media (max-width: 600px) { .cart-fab { left: 16px; right: 16px; justify-content: space-between; } }
+    .fly-dot { position: fixed; z-index: 90; width: 14px; height: 14px; border-radius: 50%; background: var(--accent); pointer-events: none; box-shadow: 0 0 0 4px rgba(110,75,51,.2); }
+
+    /* ============ Cart drawer ============ */
+    .overlay { position: fixed; inset: 0; z-index: 80; background: rgba(28,24,21,.45); opacity: 0; pointer-events: none; transition: opacity .3s var(--ease); }
+    .overlay.open { opacity: 1; pointer-events: auto; }
+    .cart { position: fixed; z-index: 81; top: 0; right: 0; bottom: 0; width: min(440px, 100%); background: var(--bg); display: flex; flex-direction: column; transform: translateX(100%); visibility: hidden; transition: transform .45s var(--ease), visibility 0s linear .45s; box-shadow: -20px 0 50px -20px rgba(0,0,0,.3); }
+    .cart.open { transform: none; visibility: visible; transition: transform .45s var(--ease), visibility 0s; }
+    .cart-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; padding-top: max(16px, env(safe-area-inset-top)); border-bottom: 1px solid var(--line); }
+    .cart-head h2 { font-size: 30px; }
+    .cart-body { flex: 1 1 auto; overflow-y: auto; padding: 4px 20px 20px; overscroll-behavior: contain; }
+    .cart-foot { border-top: 1px solid var(--line); padding: 14px 20px max(14px, env(safe-area-inset-bottom)); background: var(--paper); display: flex; flex-direction: column; gap: 10px; }
+    .cart-total { display: flex; align-items: baseline; justify-content: space-between; }
+    .cart-total span { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+    .cart-total b { font-family: var(--serif); font-size: 32px; font-weight: 600; }
+    .cart-items { list-style: none; margin: 0; padding: 0; }
+    .cart-items li { display: flex; align-items: center; gap: 10px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+    .cart-items .info { flex: 1 1 auto; min-width: 0; }
+    .cart-items .name { font-size: 13px; text-transform: uppercase; letter-spacing: .3px; line-height: 1.3; display: block; }
+    .cart-items small { display: block; font-size: 12px; color: var(--muted); }
+    .cart-items .line-sum { font-weight: 600; font-size: 14px; min-width: 70px; text-align: right; }
+    .empty { text-align: center; padding: 48px 8px; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    .empty svg { opacity: .5; }
+    .field-group { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+    .field-label { font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--muted); }
+    .choice-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .choice { position: relative; display: block; }
+    .choice input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; width: 100%; height: 100%; }
+    .choice span { display: flex; flex-direction: column; gap: 2px; height: 100%; padding: 12px 14px; border: 1px solid var(--line-strong); border-radius: 14px; background: var(--paper); font-size: 14px; font-weight: 500; transition: border-color .2s, background .2s, color .2s, transform .2s var(--ease); }
+    .choice span small { font-weight: 400; font-size: 12px; color: var(--muted); transition: color .2s; }
+    .choice input:checked + span { border-color: var(--ink); background: var(--ink); color: var(--bg); }
+    .choice input:checked + span small { color: #D9CFBE; }
+    .choice input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .choice:active span { transform: scale(.97); }
+    .input { width: 100%; min-height: 46px; padding: 11px 14px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--paper); font: inherit; font-size: 16px; color: var(--ink); transition: border-color .2s, box-shadow .2s; }
+    .input::placeholder { color: #8C8178; }
+    .input:focus { outline: none; border-color: var(--ink); box-shadow: 0 0 0 3px rgba(42,36,32,.08); }
+    textarea.input { min-height: 74px; resize: vertical; }
+    .input.error { border-color: var(--danger); animation: shake .35s; }
+    @keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+    .err-text { color: var(--danger); font-size: 13px; }
+    .note { margin-top: 12px; font-size: 12px; color: var(--accent); background: var(--sand); border-radius: 10px; padding: 8px 12px; }
+    .text-btn { background: none; border: 0; padding: 6px 0; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; align-self: center; }
+    .text-btn:hover { color: var(--ink); }
+    [hidden] { display: none !important; }
+
+    /* ============ Toast ============ */
+    .toast { position: fixed; z-index: 95; left: 50%; top: 84px; transform: translate(-50%, -20px); opacity: 0; pointer-events: none; background: var(--ink); color: var(--bg); padding: 11px 18px; border-radius: 999px; font-size: 14px; box-shadow: 0 12px 30px -12px rgba(0,0,0,.5); transition: opacity .3s var(--ease), transform .3s var(--ease); white-space: nowrap; max-width: calc(100% - 32px); overflow: hidden; text-overflow: ellipsis; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    /* ============ Reveal ============ */
+    .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
+    .reveal.in { opacity: 1; transform: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+      .reveal { opacity: 1; transform: none; }
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#top" aria-label="Paris-Brest — на главную">
+      <img src="images/logo.jpg" alt="Логотип Paris-Brest">
+      <span class="brand-name"><b>Paris-Brest</b><span>Patisserie · Boulangerie</span></span>
+    </a>
+    <div class="nav-right">
+      <nav class="nav-links" id="nav-links" aria-label="Основное меню">
+        <a href="#bread">Хлеб</a>
+        <a href="#menu">Меню</a>
+        <a href="#gallery">Фото</a>
+        <a href="#reviews">Отзывы</a>
+        <a href="#branches">Адреса</a>
+      </nav>
+      <button class="icon-btn" id="cart-btn" aria-label="Открыть корзину">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.2 11.1a2 2 0 0 1-2 1.9H8.2a2 2 0 0 1-2-1.9L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+        <span class="badge" id="cart-badge">0</span>
+      </button>
+      <button class="icon-btn menu-toggle" aria-label="Открыть меню" aria-expanded="false" aria-controls="nav-links">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- Hero -->
+  <section>
+    <div class="wrap hero">
+      <div class="hero-text">
+        <p class="eyebrow">Французская пекарня в Астане · с 2019 года</p>
+        <h1>Круассаны, которые тают во рту</h1>
+        <p>Каждое утро печём хлеб на закваске, слоёную выпечку и то самое пирожное Paris-Brest. Соберите заказ на сайте и отправьте его нам в WhatsApp в один клик.</p>
+        <div class="hero-actions">
+          <a class="btn btn-dark" href="#menu">Заказать онлайн <span class="arrow" aria-hidden="true">→</span></a>
+          <a class="btn btn-line" href="#branches">Наши адреса</a>
+        </div>
+      </div>
+      <div class="hero-photo">
+        <img src="images/hero.jpg" alt="Плетёная булочка с корицей на голубой тарелке">
+        <div class="hero-badge"><b>4,9 ★</b><span>рейтинг в Google</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Info strip -->
+  <section class="strip" aria-label="Коротко">
+    <div class="wrap strip-grid">
+      <div><span class="eyebrow">Улы Дала 56/1</span><strong>9:00–20:00</strong></div>
+      <div><span class="eyebrow">Сыганак 48А</span><strong>9:00–19:00</strong></div>
+      <div><span class="eyebrow">Завтраки</span><strong>Сэндвичи до 16:00</strong></div>
+      <div><span class="eyebrow">Заказ</span><strong>Через WhatsApp</strong></div>
+    </div>
+  </section>
+
+  <!-- Bread today -->
+  <section class="section" id="bread">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="titles">
+          <span class="script">bread</span>
+          <h2>Сегодня в печи</h2>
+        </div>
+        <p id="bread-intro">Каждый хлеб на закваске печём в свой день недели.</p>
+      </div>
+      <div class="bread-layout">
+        <div class="bread-photo reveal"><img src="images/bread.jpg" alt="Хлеб «Три семечки» на противне"></div>
+        <div class="bread-grid" id="bread-grid"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Menu -->
+  <section class="section" id="menu" style="padding-top: 0;">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="titles">
+          <span class="script">menu</span>
+          <h2>Меню</h2>
+        </div>
+        <p>Нажмите «+», чтобы добавить в корзину. Заказ уйдёт в WhatsApp выбранной пекарни.</p>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Разделы меню" id="tabs"></div>
+      <div class="menu-panel" role="tabpanel" id="menu-panel"></div>
+      <p class="fine">Цены в тенге. Актуальное меню уточняйте в пекарне или в Instagram.</p>
+    </div>
+  </section>
+
+  <!-- Gallery -->
+  <section class="section" id="gallery" style="padding-top: 0;">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="titles">
+          <span class="script">fait maison</span>
+          <h2>Из нашей пекарни</h2>
+        </div>
+        <p>Всё готовим сами, каждый день. Новинки в <a href="https://instagram.com/parisbrest_kz" target="_blank" rel="noopener">Instagram @parisbrest_kz</a>.</p>
+      </div>
+      <div class="gallery">
+        <figure class="g-tall reveal"><img src="images/pastries.jpg" alt="Паштел-де-ната и канеле" loading="lazy"><figcaption>Паштел-де-ната</figcaption></figure>
+        <figure class="g-wide reveal"><img src="images/sandwich.jpg" alt="Сэндвич на фокаччо" loading="lazy"><figcaption>Сэндвичи</figcaption></figure>
+        <figure class="g-tall reveal"><img src="images/cake.jpg" alt="Бенто-торт Paris-Brest" loading="lazy"><figcaption>Бенто-торты</figcaption></figure>
+        <figure class="g-wide reveal"><img src="images/hero.jpg" alt="Плетёная булочка" loading="lazy" style="object-position: 50% 52%"><figcaption>Выпечка</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reviews -->
+  <section class="section reviews" id="reviews">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <h2>Что говорят гости</h2>
+        <p>4,9 ★ · отзывы Google</p>
+      </div>
+      <div class="review-grid">
+        <figure class="review">
+          <blockquote>“The best french boulangerie in the city! Nice interior design. Helpful and extremely polite staff. Use to go there every morning to buy freshly made bread.”</blockquote>
+          <figcaption>Dina Fox · Local Guide</figcaption>
+        </figure>
+        <figure class="review">
+          <blockquote>“I felt like I was in a fairy tale. The croissants were melting in my mouth, and the drinks were absolute perfection.”</blockquote>
+          <figcaption>Гость · Google</figcaption>
+        </figure>
+        <figure class="review">
+          <blockquote>“The syrniki is amazingly delicious.”</blockquote>
+          <figcaption>Kalamkas Amanzholova · Local Guide</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section class="section">
+    <div class="wrap about">
+      <div class="about-photos reveal">
+        <img src="images/baker.jpg" alt="Пекарь Paris-Brest со свежими пирожными" loading="lazy">
+        <img src="images/barista.jpg" alt="Бариста готовит кофе" loading="lazy">
+      </div>
+      <div class="about-text reveal">
+        <span class="script">notre histoire</span>
+        <h2>Маленькая пекарня с большой мечтой</h2>
+        <p>Paris-Brest открыли в ноябре 2019 года Татьяна и Мария. Они познакомились на кулинарном мастер-классе и обе мечтали о своём деле. Так в Астане появилась французская пекарня-кондитерская, куда люди приходят каждое утро за тёплым багетом.</p>
+        <p>Своё имя пекарня взяла у классического французского пирожного из заварного теста с пралине.</p>
+        <div class="pills">
+          <span class="pill">Пекарня-кондитерская</span>
+          <span class="pill">Муссовые десерты</span>
+          <span class="pill">Хлеб на закваске</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Branches -->
+  <section class="section branches-bg" id="branches">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="titles">
+          <span class="script">bienvenue</span>
+          <h2>Два адреса в Астане</h2>
+        </div>
+        <p>Закажите на сайте или напишите напрямую в WhatsApp пекарне, которая вам ближе.</p>
+      </div>
+      <div class="branches">
+        <article class="branch reveal">
+          <h3>Улы Дала 56/1</h3>
+          <dl>
+            <div><dt>Часы работы</dt><dd>Ежедневно 9:00–20:00</dd></div>
+            <div><dt>Телефон</dt><dd><a href="tel:+77011099000">8 701 109 9000</a></dd></div>
+          </dl>
+          <div class="actions">
+            <a class="btn btn-wa" href="https://wa.me/77011099000" target="_blank" rel="noopener">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.2A8.5 8.5 0 1 1 20 11.5z"/></svg>
+              WhatsApp
+            </a>
+            <a class="btn btn-line" href="https://www.google.com/maps/search/?api=1&query=Paris-Brest%2C%20%D0%A3%D0%BB%D1%8B%20%D0%94%D0%B0%D0%BB%D0%B0%2056%2F1%2C%20%D0%90%D1%81%D1%82%D0%B0%D0%BD%D0%B0" target="_blank" rel="noopener">Маршрут</a>
+          </div>
+        </article>
+        <article class="branch reveal">
+          <h3>Сыганак 48А</h3>
+          <dl>
+            <div><dt>Часы работы</dt><dd>Ежедневно 9:00–19:00</dd></div>
+            <div><dt>Телефон</dt><dd><a href="tel:+77711099003">8 771 109 9003</a></dd></div>
+          </dl>
+          <div class="actions">
+            <a class="btn btn-wa" href="https://wa.me/message/6XXKNQG5F6UWB1" target="_blank" rel="noopener">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.2A8.5 8.5 0 1 1 20 11.5z"/></svg>
+              WhatsApp
+            </a>
+            <a class="btn btn-line" href="https://www.google.com/maps/search/?api=1&query=Paris-Brest%2C%20%D0%A1%D1%8B%D0%B3%D0%B0%D0%BD%D0%B0%D0%BA%2048%D0%90%2C%20%D0%90%D1%81%D1%82%D0%B0%D0%BD%D0%B0" target="_blank" rel="noopener">Маршрут</a>
+          </div>
+        </article>
+      </div>
+      <div class="insta reveal">
+        <p>Новинки, сезонные десерты и меню дня в нашем Instagram.</p>
+        <a class="btn btn-dark" href="https://instagram.com/parisbrest_kz" target="_blank" rel="noopener">@parisbrest_kz</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <b>Paris-Brest</b>
+    <span>Patisserie · Boulangerie · Астана · © <span id="year"></span></span>
+  </div>
+</footer>
+
+<!-- Floating cart button -->
+<button class="cart-fab" id="cart-fab" aria-label="Открыть корзину">
+  <span><span class="label">Корзина · </span><span class="sum" id="fab-sum">0 ₸</span></span>
+  <span class="count">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.2 11.1a2 2 0 0 1-2 1.9H8.2a2 2 0 0 1-2-1.9L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+    <span id="fab-count">0</span>
+  </span>
+</button>
+
+<!-- Cart drawer -->
+<div class="overlay" id="overlay"></div>
+<aside class="cart" id="cart" role="dialog" aria-modal="true" aria-labelledby="cart-title" aria-hidden="true">
+  <div class="cart-head">
+    <h2 id="cart-title">Корзина</h2>
+    <button class="icon-btn" id="cart-close" aria-label="Закрыть корзину">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+
+  <div class="cart-body">
+    <div class="empty" id="cart-empty">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.2 11.1a2 2 0 0 1-2 1.9H8.2a2 2 0 0 1-2-1.9L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+      <p>Корзина пока пустая.<br>Добавьте что-нибудь вкусное из меню.</p>
+      <a class="btn btn-dark" href="#menu" data-close>Открыть меню</a>
+    </div>
+
+    <div id="cart-filled" hidden>
+      <ul class="cart-items" id="cart-items"></ul>
+      <p class="note" id="sandwich-note" hidden>Сэндвичи и сырники готовим до 16:00.</p>
+
+      <div class="field-group">
+        <span class="field-label">Пекарня</span>
+        <div class="choice-row">
+          <label class="choice"><input type="radio" name="branch" value="ulydala" checked><span>Улы Дала 56/1<small>9:00–20:00</small></span></label>
+          <label class="choice"><input type="radio" name="branch" value="syganak"><span>Сыганак 48А<small>9:00–19:00</small></span></label>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <span class="field-label">Способ получения</span>
+        <div class="choice-row">
+          <label class="choice"><input type="radio" name="method" value="pickup" checked><span>Самовывоз<small>заберу сам(а)</small></span></label>
+          <label class="choice"><input type="radio" name="method" value="delivery"><span>Доставка<small>цену уточнит менеджер</small></span></label>
+        </div>
+        <div id="address-wrap" hidden>
+          <input class="input" id="address" type="text" placeholder="Адрес доставки" autocomplete="street-address" aria-label="Адрес доставки">
+          <p class="err-text" id="address-err" hidden>Укажите адрес доставки</p>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <span class="field-label">Детали (необязательно)</span>
+        <input class="input" id="name" type="text" placeholder="Ваше имя" autocomplete="given-name" aria-label="Ваше имя">
+        <input class="input" id="time" type="text" placeholder="Время, например «сегодня к 18:00»" aria-label="Время получения">
+        <textarea class="input" id="comment" placeholder="Комментарий к заказу" aria-label="Комментарий к заказу"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="cart-foot" id="cart-foot" hidden>
+    <div class="cart-total"><span>Итого</span><b id="cart-total">0 ₸</b></div>
+    <button class="btn btn-wa" id="checkout">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.2A8.5 8.5 0 1 1 20 11.5z"/></svg>
+      Заказать в WhatsApp
+    </button>
+    <button class="text-btn" id="clear-cart">Очистить корзину</button>
+  </div>
+</aside>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+  /* =========================================================
+     МЕНЮ. Чтобы изменить цену или добавить позицию,
+     правьте только этот блок. id должен быть уникальным.
+     ========================================================= */
+  const MENU = [
+    { id: 'pastry', label: 'Выпечка', items: [
+      { id: 'croissant',        name: 'Классический круассан', price: 1300 },
+      { id: 'swiss',            name: 'Швейцарская слойка',    price: 1500 },
+      { id: 'croissant-straw',  name: 'Клубничный круассан',   price: 1700 },
+      { id: 'croissant-almond', name: 'Миндальный круассан',   price: 1800 },
+      { id: 'snail',            name: 'Улитка',                price: 1400, sub: 'с изюмом и цукатами' },
+      { id: 'chausson',         name: 'Шоссон',                price: 1700, sub: 'с яблоком' },
+      { id: 'swedish-bun',      name: 'Шведская булочка',      price: 1300 },
+      { id: 'poppy-bun',        name: 'Маковая булочка',       price: 1300 }
+    ]},
+    { id: 'sandwich', label: 'Сэндвичи и сырники', note: 'Подаём до 16:00', items: [
+      { id: 'bag-salmon',  name: 'Багет с лососем',       price: 3700, sandwich: true },
+      { id: 'bag-mozz',    name: 'Багет с моцареллой',    price: 3700, sandwich: true },
+      { id: 'bag-chicken', name: 'Багет с курицей',       price: 3200, sandwich: true },
+      { id: 'cr-salmon',   name: 'Круассан с лососем',    price: 3700, sandwich: true },
+      { id: 'cr-mozz',     name: 'Круассан с моцареллой', price: 3700, sandwich: true },
+      { id: 'cr-chicken',  name: 'Круассан с курицей',    price: 3200, sandwich: true },
+      { id: 'syrniki',     name: 'Сырники',               price: 3500, sandwich: true }
+    ]},
+    { id: 'coffee', label: 'Кофе', items: [
+      { id: 'espresso',   name: 'Эспрессо',            price: 900 },
+      { id: 'americano',  name: 'Американо',           price: 1200, sub: '0,35 л' },
+      { id: 'cappu-l',    name: 'Капучино большой',    price: 1400, sub: '0,35 л' },
+      { id: 'cappu-s',    name: 'Капучино маленький',  price: 1200, sub: '0,2 л' },
+      { id: 'latte',      name: 'Латте',               price: 1400, sub: '0,35 л' },
+      { id: 'flatwhite',  name: 'Флэт уайт',           price: 1300, sub: '0,2 л' },
+      { id: 'plant-milk', name: 'Растительное молоко', price: 400,  sub: 'добавка к кофе' }
+    ]},
+    { id: 'tea', label: 'Авторские чаи', note: 'Все чаи 0,35 л', items: [
+      { id: 'tea-sea',     name: 'Облепиха и малина',  price: 2200 },
+      { id: 'tea-cran',    name: 'Клюква и апельсин',  price: 2200 },
+      { id: 'tea-currant', name: 'Смородина и чабрец', price: 2200 },
+      { id: 'tea-mango',   name: 'Малина и манго',     price: 2200 },
+      { id: 'tea-cherry',  name: 'Вишня и эвкалипт',   price: 2200 }
+    ]},
+    { id: 'hot', label: 'Горячие напитки', items: [
+      { id: 'gluhwein',     name: 'Глинтвейн безалкогольный',    price: 2200, sub: '0,35 л' },
+      { id: 'hot-choc',     name: 'Горячий шоколад',             price: 1500, sub: '0,35 л' },
+      { id: 'matcha',       name: 'Матча латте',                 price: 2000, sub: '0,35 л' },
+      { id: 'matcha-plant', name: 'Матча латте на растительном', price: 2400, sub: '0,35 л' },
+      { id: 'tea-black',    name: 'Чёрный чай',                  price: 1500, sub: 'чайник 0,8 л' },
+      { id: 'tea-green',    name: 'Зелёный чай сенча',           price: 1500, sub: 'чайник 0,8 л' },
+      { id: 'tea-herbal',   name: 'Травяной чай с ромашкой',     price: 1500, sub: 'чайник 0,8 л' },
+      { id: 'tea-hibiscus', name: 'Фруктовый чай каркаде',       price: 1500, sub: 'чайник 0,8 л' }
+    ]}
+  ];
+
+  // Хлеб. Дни недели: 0 = воскресенье … 6 = суббота
+  const ALL = [0,1,2,3,4,5,6];
+  const BREADS = [
+    { id: 'baguette',  name: 'Багет',                  price: 800,  days: ALL,       label: 'Каждый день' },
+    { id: 'tartine-w', name: 'Тартин белый',           price: 1200, days: ALL,       label: 'Каждый день' },
+    { id: 'seeds',     name: 'Хлеб 3 семечки',         price: 1000, days: ALL,       label: 'Каждый день' },
+    { id: 'tartine-r', name: 'Тартин ржаной',          price: 1200, days: [2,4,6],   label: 'Вт · Чт · Сб' },
+    { id: 'borodino',  name: 'Бородинский хлеб',       price: 1200, days: [2,4,6,0], label: 'Вт · Чт · Сб · Вс' },
+    { id: 'danish',    name: 'Датский хлеб',           price: 1500, days: [1,3,5],   label: 'Пн · Ср · Пт' },
+    { id: 'hokkaido',  name: 'Тостовый хлеб Хоккайдо', price: 1400, days: [2,4,6],   label: 'Вт · Чт · Сб' }
+  ];
+
+  // WhatsApp-номера филиалов (только цифры, с кодом страны 7)
+  const BRANCHES = {
+    ulydala: { kz: 'Ұлы Дала 56/1', phone: '77011099000' },
+    syganak: { kz: 'Сығанақ 48А',  phone: '77711099003' }
+  };
+
+  /* ========================================================= */
+  const $ = s => document.querySelector(s);
+  const fmt = n => n.toLocaleString('ru-RU').replace(/ | /g, ' ') + ' ₸';
+  const DAY_NAMES = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
+  const today = new Date().getDay();
+  const reduceMotion = () => window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const PRODUCTS = {};
+  MENU.forEach(c => c.items.forEach(i => { PRODUCTS[i.id] = i; }));
+  BREADS.forEach(b => { PRODUCTS[b.id] = { ...b, sub: b.days.includes(today) ? '' : 'под заказ' }; });
+
+  const ICON_PLUS  = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
+  const ICON_MINUS = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg>';
+
+  /* ---------- Корзина (сохраняется в браузере) ---------- */
+  const STORE_KEY = 'parisbrest-cart-v1';
+  let cart = {};
+  try { cart = JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (e) { cart = {}; }
+  Object.keys(cart).forEach(id => { if (!PRODUCTS[id] || !(cart[id] > 0)) delete cart[id]; });
+  const save = () => { try { localStorage.setItem(STORE_KEY, JSON.stringify(cart)); } catch (e) {} };
+
+  const qty = id => cart[id] || 0;
+  const cartCount = () => Object.values(cart).reduce((a, b) => a + b, 0);
+  const cartTotal = () => Object.entries(cart).reduce((s, [id, q]) => s + PRODUCTS[id].price * q, 0);
+
+  function control(id, light) {
+    const p = PRODUCTS[id];
+    const q = qty(id);
+    if (!q) return `<button class="add-btn" data-add="${id}" aria-label="Добавить: ${p.name}">${ICON_PLUS}</button>`;
+    return `<span class="stepper${light ? ' light' : ''}">
+      <button data-dec="${id}" aria-label="Убрать одну: ${p.name}">${ICON_MINUS}</button>
+      <output>${q}</output>
+      <button data-inc="${id}" aria-label="Добавить ещё: ${p.name}">${ICON_PLUS}</button>
+    </span>`;
+  }
+
+  /* ---------- Хлеб ---------- */
+  function renderBread() {
+    const list = BREADS.map(b => ({ ...b, isToday: b.days.includes(today) })).sort((a, b) => b.isToday - a.isToday);
+    const count = list.filter(b => b.isToday).length;
+    $('#bread-intro').textContent = `Каждый хлеб на закваске печём в свой день недели. Сегодня ${DAY_NAMES[today]}, на полках ${count} видов хлеба. Остальные можно взять под заказ.`;
+    $('#bread-grid').innerHTML = list.map(b => `
+      <div class="bread-card ${b.isToday ? 'today' : ''}">
+        <div class="bread-meta"><span class="days">${b.label}</span>${b.isToday ? '<span class="tag">Сегодня</span>' : '<span class="tag soft">Под заказ</span>'}</div>
+        <h3>${b.name}</h3>
+        <div class="bread-foot"><span class="price">${fmt(b.price)}</span><span data-slot="${b.id}">${control(b.id)}</span></div>
+      </div>`).join('');
+  }
+
+  /* ---------- Меню ---------- */
+  let currentTab = 'pastry';
+  function renderTabs() {
+    $('#tabs').innerHTML = MENU.map(c =>
+      `<button class="tab" role="tab" data-tab="${c.id}" aria-selected="${c.id === currentTab}">${c.label}</button>`).join('');
+  }
+  function renderMenu() {
+    const cat = MENU.find(c => c.id === currentTab);
+    $('#menu-panel').innerHTML =
+      (cat.note ? `<p class="menu-note">${cat.note}</p>` : '') +
+      '<ul class="menu-list">' + cat.items.map(i => `
+        <li>
+          <div class="info">
+            <span class="name">${i.name}</span>
+            ${i.sub ? `<small>${i.sub}</small>` : ''}
+            <span class="price">${fmt(i.price)}</span>
+          </div>
+          <span data-slot="${i.id}">${control(i.id)}</span>
+        </li>`).join('') + '</ul>';
+  }
+
+  /* ---------- Корзина: отрисовка ---------- */
+  function refreshSlots() {
+    document.querySelectorAll('[data-slot]').forEach(el => { el.innerHTML = control(el.dataset.slot); });
+  }
+  function renderCart() {
+    const ids = Object.keys(cart);
+    const empty = ids.length === 0;
+    $('#cart-empty').hidden = !empty;
+    $('#cart-filled').hidden = empty;
+    $('#cart-foot').hidden = empty;
+    $('#cart-items').innerHTML = ids.map(id => {
+      const p = PRODUCTS[id];
+      return `<li>
+        <div class="info"><span class="name">${p.name}</span>${p.sub ? `<small>${p.sub}</small>` : ''}<small>${fmt(p.price)} / шт</small></div>
+        ${control(id, true)}
+        <span class="line-sum">${fmt(p.price * cart[id])}</span>
+      </li>`;
+    }).join('');
+    $('#sandwich-note').hidden = !ids.some(id => PRODUCTS[id].sandwich);
+    $('#cart-total').textContent = fmt(cartTotal());
+
+    const n = cartCount();
+    $('#cart-badge').textContent = n;
+    $('#cart-badge').classList.toggle('show', n > 0);
+    $('#fab-count').textContent = n;
+    $('#fab-sum').textContent = fmt(cartTotal());
+    $('#cart-fab').classList.toggle('show', n > 0 && !$('#cart').classList.contains('open'));
+  }
+  function update() { save(); refreshSlots(); renderCart(); }
+
+  function bump(el) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+
+  function flyToCart(fromEl) {
+    if (reduceMotion() || !fromEl.animate) return;
+    const fab = $('#cart-fab');
+    const target = fab.classList.contains('show') ? fab : $('#cart-btn');
+    const a = fromEl.getBoundingClientRect(), b = target.getBoundingClientRect();
+    const dot = document.createElement('div');
+    dot.className = 'fly-dot';
+    dot.style.left = (a.left + a.width / 2 - 7) + 'px';
+    dot.style.top = (a.top + a.height / 2 - 7) + 'px';
+    document.body.appendChild(dot);
+    const dx = (b.left + b.width / 2) - (a.left + a.width / 2);
+    const dy = (b.top + b.height / 2) - (a.top + a.height / 2);
+    dot.animate([
+      { transform: 'translate(0,0) scale(1)', opacity: 1 },
+      { transform: `translate(${dx * .5}px, ${dy * .5 - 80}px) scale(1.2)`, opacity: 1, offset: .5 },
+      { transform: `translate(${dx}px, ${dy}px) scale(.4)`, opacity: .3 }
+    ], { duration: 650, easing: 'cubic-bezier(.5,0,.5,1)' }).onfinish = () => {
+      dot.remove(); bump($('#cart-btn')); if (fab.classList.contains('show')) bump($('#fab-count').parentElement);
+    };
+  }
+
+  let toastTimer;
+  function toast(msg) {
+    const t = $('#toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+  }
+
+  function add(id, srcEl) {
+    cart[id] = qty(id) + 1;
+    if (cart[id] === 1) toast('Добавлено: ' + PRODUCTS[id].name);
+    update();
+    if (srcEl) {
+      // анимация вылетает из нового степпера на месте кнопки
+      const slot = document.querySelector(`[data-slot="${id}"]`);
+      flyToCart(slot && document.body.contains(slot) ? slot : srcEl);
+    }
+  }
+  function dec(id) {
+    cart[id] = qty(id) - 1;
+    if (cart[id] <= 0) delete cart[id];
+    update();
+  }
+
+  /* ---------- Открыть / закрыть корзину ---------- */
+  let lastFocus;
+  function openCart() {
+    lastFocus = document.activeElement;
+    $('#cart').classList.add('open');
+    $('#cart').setAttribute('aria-hidden', 'false');
+    $('#overlay').classList.add('open');
+    document.body.classList.add('no-scroll');
+    $('#cart-fab').classList.remove('show');
+    setTimeout(() => $('#cart-close').focus(), 60);
+  }
+  function closeCart() {
+    $('#cart').classList.remove('open');
+    $('#cart').setAttribute('aria-hidden', 'true');
+    $('#overlay').classList.remove('open');
+    document.body.classList.remove('no-scroll');
+    renderCart();
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  /* ---------- Сообщение для WhatsApp ---------- */
+  function buildMessage() {
+    const branch = BRANCHES[document.querySelector('input[name=branch]:checked').value];
+    const method = document.querySelector('input[name=method]:checked').value;
+    const address = $('#address').value.trim();
+    const name = $('#name').value.trim();
+    const time = $('#time').value.trim();
+    const comment = $('#comment').value.trim();
+
+    const lines = ['Сәлеметсіз бе! Paris-Brest сайтынан тапсырыс бергім келеді:'];
+    Object.entries(cart).forEach(([id, q], i) => {
+      const p = PRODUCTS[id];
+      const extra = p.sub ? ` (${p.sub})` : '';
+      lines.push(`${i + 1}. ${p.name}${extra} — ${q} дана = ${fmt(p.price * q)}`);
+    });
+    lines.push('', `Филиал: ${branch.kz}`, 'Тапсыру әдісі:');
+    lines.push(method === 'pickup' ? '• Өзім алып кетемін (самовывоз)' : `• Жеткізу (доставка): ${address}`);
+    if (time) lines.push(`Уақыты: ${time}`);
+    if (name) lines.push(`Аты: ${name}`);
+    if (comment) lines.push(`Пікір: ${comment}`);
+    lines.push('', `Жалпы сомасы: ${fmt(cartTotal())}`);
+    return { text: lines.join('\n'), phone: branch.phone };
+  }
+
+  function checkout() {
+    if (!cartCount()) return;
+    const method = document.querySelector('input[name=method]:checked').value;
+    const addr = $('#address');
+    if (method === 'delivery' && !addr.value.trim()) {
+      addr.classList.remove('error'); void addr.offsetWidth; addr.classList.add('error');
+      $('#address-err').hidden = false;
+      addr.focus();
+      return;
+    }
+    const { text, phone } = buildMessage();
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+    toast('Открываем WhatsApp…');
+    const w = window.open(url, '_blank', 'noopener');
+    if (!w) location.href = url;
+  }
+
+  /* ---------- События ---------- */
+  document.addEventListener('click', e => {
+    const addBtn = e.target.closest('[data-add]');
+    const incBtn = e.target.closest('[data-inc]');
+    const decBtn = e.target.closest('[data-dec]');
+    const tabBtn = e.target.closest('[data-tab]');
+    if (addBtn) add(addBtn.dataset.add, addBtn);
+    else if (incBtn) add(incBtn.dataset.inc, null);
+    else if (decBtn) dec(decBtn.dataset.dec);
+    else if (tabBtn) {
+      currentTab = tabBtn.dataset.tab;
+      renderTabs(); renderMenu();
+      const active = document.querySelector(`[data-tab="${currentTab}"]`);
+      const strip = $('#tabs');
+      if (active) strip.scrollTo({ left: active.offsetLeft - strip.clientWidth / 2 + active.clientWidth / 2, behavior: 'smooth' });
+    }
+    if (e.target.closest('[data-close]')) closeCart();
+  });
+
+  $('#cart-btn').addEventListener('click', openCart);
+  $('#cart-fab').addEventListener('click', openCart);
+  $('#cart-close').addEventListener('click', closeCart);
+  $('#overlay').addEventListener('click', closeCart);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#cart').classList.contains('open')) closeCart(); });
+  $('#checkout').addEventListener('click', checkout);
+  $('#clear-cart').addEventListener('click', () => { cart = {}; update(); toast('Корзина очищена'); });
+
+  document.querySelectorAll('input[name=method]').forEach(r => r.addEventListener('change', () => {
+    const delivery = document.querySelector('input[name=method]:checked').value === 'delivery';
+    $('#address-wrap').hidden = !delivery;
+    if (!delivery) { $('#address-err').hidden = true; $('#address').classList.remove('error'); }
+  }));
+  $('#address').addEventListener('input', () => { $('#address-err').hidden = true; $('#address').classList.remove('error'); });
+
+  // Волна (ripple) при нажатии на кнопки
+  document.addEventListener('pointerdown', e => {
+    const b = e.target.closest('.btn, .add-btn');
+    if (!b || reduceMotion()) return;
+    const r = b.getBoundingClientRect();
+    const size = Math.max(r.width, r.height);
+    const s = document.createElement('span');
+    s.className = 'ripple';
+    s.style.width = s.style.height = size + 'px';
+    s.style.left = (e.clientX - r.left - size / 2) + 'px';
+    s.style.top = (e.clientY - r.top - size / 2) + 'px';
+    b.appendChild(s);
+    setTimeout(() => s.remove(), 650);
+  });
+
+  // Мобильное меню
+  const toggle = document.querySelector('.menu-toggle');
+  const links = $('#nav-links');
+  toggle.addEventListener('click', () => {
+    const open = links.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', open);
+  });
+  links.addEventListener('click', e => { if (e.target.closest('a')) { links.classList.remove('open'); toggle.setAttribute('aria-expanded', false); } });
+
+  // Появление блоков при прокрутке
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  } else {
+    document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+  }
+
+  $('#year').textContent = new Date().getFullYear();
+
+  renderBread();
+  renderTabs();
+  renderMenu();
+  renderCart();
+</script>
+</body>
+</html>
