@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Montserrat:wght@400;500;600&family=Pinyon+Script&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
   <style>
     /* ============ Tokens ============ */
     :root {
@@ -273,23 +274,52 @@
     .pill { border: 1px solid var(--line-strong); border-radius: 999px; padding: 8px 14px; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--ink); }
     @media (max-width: 900px) { .about { grid-template-columns: 1fr; gap: 28px; } .about-photos img:last-child { margin-top: 28px; } }
 
-    /* ============ Branches ============ */
-    .branches-bg { background: var(--paper); border-top: 1px solid var(--line); }
-    .branches { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
-    .branch { background: var(--bg); border: 1px solid var(--line); border-radius: 22px; padding: 30px; display: flex; flex-direction: column; gap: 20px; transition: transform .3s var(--ease), box-shadow .3s var(--ease); }
-    .branch:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -24px rgba(42,36,32,.4); }
-    .branch h3 { font-size: 32px; line-height: 1.1; }
-    .branch dl { margin: 0; display: grid; gap: 14px; }
-    .branch dt { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
-    .branch dd { margin: 2px 0 0; font-size: 18px; }
-    .branch dd a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line-strong); }
-    .branch .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: auto; }
-    .insta { margin-top: 28px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; border-top: 1px solid var(--line); padding-top: 24px; }
-    @media (max-width: 760px) {
-      .branches { grid-template-columns: 1fr; gap: 14px; }
-      .branch { padding: 22px; gap: 16px; }
-      .branch h3 { font-size: 28px; }
-      .branch .actions .btn { flex: 1 1 auto; }
+    /* ============ Contacts + map ============ */
+    .contacts { position: relative; min-height: 720px; display: flex; align-items: center; background: #ECE7DE; overflow: hidden; border-top: 1px solid var(--line); }
+    .map { position: absolute; inset: 0; z-index: 0; background: #ECE7DE; }
+    .contacts-wrap { position: relative; z-index: 1; width: 100%; padding-top: 64px; padding-bottom: 64px; pointer-events: none; }
+    .contacts-card { pointer-events: auto; max-width: 520px; background: rgba(251,248,242,.9); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border: 1px solid var(--line); border-radius: 24px; padding: 34px 34px 28px; box-shadow: 0 30px 60px -30px rgba(42,36,32,.35); }
+    .contacts-card h2 { font-size: clamp(40px, 5vw, 62px); text-transform: uppercase; letter-spacing: 1px; line-height: 1; margin-bottom: 16px; }
+    .branch-item { display: grid; gap: 6px; padding: 20px 0; border-top: 1px solid var(--line); }
+    .branch-head { display: flex; align-items: center; gap: 12px; width: 100%; padding: 4px 0; border: 0; background: none; text-align: left; cursor: pointer; color: var(--ink); }
+    .branch-head h3 { flex: 1 1 auto; font-size: 28px; font-weight: 500; line-height: 1.1; }
+    .pin-dot { width: 12px; height: 12px; flex: none; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px rgba(110,75,51,.18); transition: transform .3s var(--spring); }
+    .branch-head:hover .pin-dot { transform: scale(1.35); }
+    .show-map { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); white-space: nowrap; }
+    .show-map svg { transition: transform .25s var(--ease); }
+    .branch-head:hover .show-map svg { transform: translateX(3px); }
+    .b-phone { font-size: 24px; font-weight: 500; color: var(--ink); text-decoration: none; width: fit-content; }
+    .b-phone:hover { color: var(--accent); }
+    .b-hours { font-size: 15px; color: var(--body); }
+    .b-links { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
+    .btn-sm { min-height: 42px; padding: 10px 18px; font-size: 12px; }
+    .map-link { display: inline-flex; align-items: center; gap: 6px; min-height: 42px; padding: 0 14px; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--paper); color: var(--ink); font-size: 13px; text-decoration: none; transition: transform .2s var(--ease), border-color .2s, background .2s; }
+    .map-link:hover { color: var(--ink); border-color: var(--ink); transform: translateY(-2px); }
+    .map-link:active { transform: scale(.95); }
+    .contacts-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 14px; color: var(--body); }
+    .contacts-foot a { color: var(--ink); font-weight: 500; }
+    /* map markers */
+    .pb-marker { display: flex; align-items: center; gap: 8px; width: max-content; transform: translate(-22px, -22px); }
+    .pb-pin { width: 44px; height: 44px; border-radius: 50%; background: #fff; border: 3px solid var(--accent); box-shadow: 0 8px 18px -6px rgba(42,36,32,.55); overflow: hidden; flex: none; animation: pinDrop .7s var(--spring) both; transition: transform .25s var(--spring); }
+    .pb-pin img { width: 100%; height: 100%; object-fit: cover; }
+    .pb-label { background: var(--ink); color: var(--bg); font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: .5px; padding: 6px 10px; border-radius: 999px; box-shadow: 0 6px 14px -6px rgba(0,0,0,.5); white-space: nowrap; animation: pinDrop .7s .1s var(--spring) both; }
+    .pb-marker:hover .pb-pin, .pb-marker.active .pb-pin { transform: scale(1.12); }
+    .pb-marker.active .pb-label { background: var(--accent); }
+    @keyframes pinDrop { from { opacity: 0; transform: translateY(-14px) scale(.8); } to { opacity: 1; transform: none; } }
+    .leaflet-container { font-family: var(--sans); background: #ECE7DE; }
+    .leaflet-popup-content-wrapper { border-radius: 14px; box-shadow: 0 14px 30px -12px rgba(0,0,0,.4); }
+    .leaflet-popup-content { margin: 12px 16px; font-size: 13px; line-height: 1.45; color: var(--ink); }
+    .leaflet-popup-content b { font-family: var(--serif); font-size: 18px; font-weight: 600; display: block; }
+    .leaflet-popup-content a { color: var(--accent); font-weight: 600; }
+    .leaflet-control-zoom a { color: var(--ink) !important; }
+    @media (max-width: 900px) {
+      .contacts { display: flex; flex-direction: column; align-items: stretch; min-height: 0; }
+      .contacts-wrap { order: -1; padding-top: 48px; padding-bottom: 24px; }
+      .contacts-card { max-width: none; background: var(--paper); -webkit-backdrop-filter: none; backdrop-filter: none; padding: 24px 20px 20px; border-radius: 20px; }
+      .map { position: relative; inset: auto; height: 380px; }
+      .branch-head h3 { font-size: 24px; }
+      .b-phone { font-size: 21px; }
+      .b-links .btn-sm, .b-links .map-link { flex: 1 1 auto; justify-content: center; }
     }
 
     footer { background: var(--ink); color: #D9CFBE; font-size: 13px; padding-bottom: env(safe-area-inset-bottom); }
@@ -528,49 +558,46 @@
     </div>
   </section>
 
-  <!-- Branches -->
-  <section class="section branches-bg" id="branches">
-    <div class="wrap">
-      <div class="section-head reveal">
-        <div class="titles">
-          <span class="script">bienvenue</span>
-          <h2 data-i18n="branchesTitle">Два адреса в Астане</h2>
+  <!-- Contacts + map -->
+  <section class="contacts" id="branches">
+    <div class="map" id="map" role="region" data-i18n-aria="mapAria" aria-label="Карта"></div>
+    <div class="wrap contacts-wrap">
+      <div class="contacts-card">
+        <h2 data-i18n="contactsTitle">Контакты</h2>
+        <article class="branch-item">
+          <button type="button" class="branch-head" data-focus="ulydala">
+            <span class="pin-dot" aria-hidden="true"></span>
+            <h3 data-i18n="ulydala"></h3>
+            <span class="show-map"><span data-i18n="showOnMap">На карте</span> <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          </button>
+          <p class="b-hours" data-i18n="hoursUly"></p>
+          <a class="b-phone" href="tel:+77011099000">+7 (701) 109-90-00</a>
+          <div class="b-links">
+            <a class="btn btn-wa btn-sm" href="https://wa.me/77011099000" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.2A8.5 8.5 0 1 1 20 11.5z"/></svg> WhatsApp</a>
+            <a class="map-link" href="https://2gis.kz/astana/search/Paris-Brest%20%D0%A3%D0%BB%D1%8B%20%D0%94%D0%B0%D0%BB%D0%B0%2056%2F1" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg> 2ГИС</a>
+            <a class="map-link" href="https://yandex.kz/maps/?pt=71.4085957,51.0961166&amp;z=17&amp;l=map" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg> Яндекс Карты</a>
+            <a class="map-link" href="https://www.google.com/maps/search/?api=1&amp;query=51.0961166,71.4085957" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg> Google</a>
+          </div>
+        </article>
+        <article class="branch-item">
+          <button type="button" class="branch-head" data-focus="syganak">
+            <span class="pin-dot" aria-hidden="true"></span>
+            <h3 data-i18n="syganak"></h3>
+            <span class="show-map"><span data-i18n="showOnMap">На карте</span> <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          </button>
+          <p class="b-hours" data-i18n="hoursSyg"></p>
+          <a class="b-phone" href="tel:+77711099003">+7 (771) 109-90-03</a>
+          <div class="b-links">
+            <a class="btn btn-wa btn-sm" href="https://wa.me/message/6XXKNQG5F6UWB1" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.2A8.5 8.5 0 1 1 20 11.5z"/></svg> WhatsApp</a>
+            <a class="map-link" href="https://2gis.kz/astana/search/Paris-Brest%20%D0%A1%D1%8B%D0%B3%D0%B0%D0%BD%D0%B0%D0%BA%2048%D0%90" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg> 2ГИС</a>
+            <a class="map-link" href="https://yandex.kz/maps/?pt=71.4096429,51.1254033&amp;z=17&amp;l=map" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg> Яндекс Карты</a>
+            <a class="map-link" href="https://www.google.com/maps/search/?api=1&amp;query=51.1254033,71.4096429" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg> Google</a>
+          </div>
+        </article>
+        <div class="contacts-foot">
+          <span data-i18n="instaText">Новинки, сезонные десерты и меню дня в нашем Instagram.</span>
+          <a href="https://instagram.com/parisbrest_kz" target="_blank" rel="noopener">@parisbrest_kz</a>
         </div>
-        <p data-i18n="branchesText">Закажите на сайте или напишите напрямую в WhatsApp пекарне, которая вам ближе.</p>
-      </div>
-      <div class="branches">
-        <article class="branch reveal">
-          <h3 data-i18n="ulydala">Улы Дала 56/1</h3>
-          <dl>
-            <div><dt data-i18n="hours">Часы работы</dt><dd data-i18n="hoursUly">Ежедневно 9:00–20:00</dd></div>
-            <div><dt data-i18n="phone">Телефон</dt><dd><a href="tel:+77011099000">8 701 109 9000</a></dd></div>
-          </dl>
-          <div class="actions">
-            <a class="btn btn-wa" href="https://wa.me/77011099000" target="_blank" rel="noopener">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.2A8.5 8.5 0 1 1 20 11.5z"/></svg>
-              WhatsApp
-            </a>
-            <a class="btn btn-line" href="https://www.google.com/maps/search/?api=1&query=Paris-Brest%2C%20%D0%A3%D0%BB%D1%8B%20%D0%94%D0%B0%D0%BB%D0%B0%2056%2F1%2C%20%D0%90%D1%81%D1%82%D0%B0%D0%BD%D0%B0" target="_blank" rel="noopener" data-i18n="route">Маршрут</a>
-          </div>
-        </article>
-        <article class="branch reveal">
-          <h3 data-i18n="syganak">Сыганак 48А</h3>
-          <dl>
-            <div><dt data-i18n="hours">Часы работы</dt><dd data-i18n="hoursSyg">Ежедневно 9:00–19:00</dd></div>
-            <div><dt data-i18n="phone">Телефон</dt><dd><a href="tel:+77711099003">8 771 109 9003</a></dd></div>
-          </dl>
-          <div class="actions">
-            <a class="btn btn-wa" href="https://wa.me/message/6XXKNQG5F6UWB1" target="_blank" rel="noopener">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.2A8.5 8.5 0 1 1 20 11.5z"/></svg>
-              WhatsApp
-            </a>
-            <a class="btn btn-line" href="https://www.google.com/maps/search/?api=1&query=Paris-Brest%2C%20%D0%A1%D1%8B%D0%B3%D0%B0%D0%BD%D0%B0%D0%BA%2048%D0%90%2C%20%D0%90%D1%81%D1%82%D0%B0%D0%BD%D0%B0" target="_blank" rel="noopener" data-i18n="route">Маршрут</a>
-          </div>
-        </article>
-      </div>
-      <div class="insta reveal">
-        <p data-i18n="instaText">Новинки, сезонные десерты и меню дня в нашем Instagram.</p>
-        <a class="btn btn-dark" href="https://instagram.com/parisbrest_kz" target="_blank" rel="noopener">@parisbrest_kz</a>
       </div>
     </div>
   </section>
@@ -663,6 +690,7 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script>
   /* =========================================================
      НАСТРОЙКИ
@@ -672,8 +700,8 @@
 
   // WhatsApp-номера филиалов (только цифры, с кодом страны 7)
   const BRANCHES = {
-    ulydala: { ru: 'Улы Дала 56/1', kz: 'Ұлы Дала 56/1', phone: '77011099000' },
-    syganak: { ru: 'Сыганак 48А',  kz: 'Сығанақ 48А',  phone: '77711099003' }
+    ulydala: { ru: 'Улы Дала 56/1', kz: 'Ұлы Дала 56/1', phone: '77011099000', lat: 51.0961166, lng: 71.4085957, hours: 'hoursUly' },
+    syganak: { ru: 'Сыганак 48А',  kz: 'Сығанақ 48А',  phone: '77711099003', lat: 51.1254033, lng: 71.4096429, hours: 'hoursSyg' }
   };
 
   /* =========================================================
@@ -767,7 +795,7 @@
       pill1: 'Пекарня-кондитерская', pill2: 'Муссовые десерты', pill3: 'Хлеб на закваске',
       branchesTitle: 'Два адреса в Астане', branchesText: 'Закажите на сайте или напишите напрямую в WhatsApp пекарне, которая вам ближе.',
       hours: 'Часы работы', hoursUly: 'Ежедневно 9:00–20:00', hoursSyg: 'Ежедневно 9:00–19:00', phone: 'Телефон', route: 'Маршрут',
-      instaText: 'Новинки, сезонные десерты и меню дня в нашем Instagram.', footer: 'Patisserie · Boulangerie · Астана',
+      instaText: 'Новинки, сезонные десерты и меню дня в нашем Instagram.', contactsTitle: 'Контакты', showOnMap: 'На карте', mapAria: 'Карта: два адреса Paris-Brest', routeLink: 'Построить маршрут', footer: 'Patisserie · Boulangerie · Астана',
       cart: 'Корзина', cartEmpty: 'Корзина пока пустая.<br>Добавьте что-нибудь вкусное из меню.', openMenuBtn: 'Открыть меню',
       sandwichNote: 'Сэндвичи и сырники готовим до 16:00.', bakery: 'Пекарня', getting: 'Получение',
       pickupInfo: 'Самовывоз из выбранной пекарни', pickup: 'Самовывоз', pickupSub: 'заберу сам(а)', delivery: 'Доставка', deliverySub: 'цену уточнит менеджер',
@@ -803,7 +831,7 @@
       pill1: 'Наубайхана-кондитерлік', pill2: 'Мусс десерттері', pill3: 'Закваскадағы нан',
       branchesTitle: 'Астанада екі мекенжай', branchesText: 'Сайттан тапсырыс беріңіз немесе өзіңізге жақын наубайханаға WhatsApp арқылы тікелей жазыңыз.',
       hours: 'Жұмыс уақыты', hoursUly: 'Күн сайын 9:00–20:00', hoursSyg: 'Күн сайын 9:00–19:00', phone: 'Телефон', route: 'Бағыт',
-      instaText: 'Жаңа өнімдер, маусымдық десерттер мен күн мәзірі біздің Instagram-да.', footer: 'Patisserie · Boulangerie · Астана',
+      instaText: 'Жаңа өнімдер, маусымдық десерттер мен күн мәзірі біздің Instagram-да.', contactsTitle: 'Байланыс', showOnMap: 'Картада', mapAria: 'Карта: Paris-Brest-тің екі мекенжайы', routeLink: 'Бағыт салу', footer: 'Patisserie · Boulangerie · Астана',
       cart: 'Себет', cartEmpty: 'Себет әзірге бос.<br>Мәзірден дәмді бірдеңе қосыңыз.', openMenuBtn: 'Мәзірді ашу',
       sandwichNote: 'Сэндвичтер мен сырниктер 16:00-ге дейін дайындалады.', bakery: 'Наубайхана', getting: 'Алу тәсілі',
       pickupInfo: 'Таңдалған наубайханадан өзіңіз алып кетесіз', pickup: 'Өзім алып кетемін', pickupSub: 'наубайханадан', delivery: 'Жеткізу', deliverySub: 'бағасын менеджер нақтылайды',
@@ -933,7 +961,7 @@
     $('#cart-fab').classList.toggle('show', n > 0 && !$('#cart').classList.contains('open'));
   }
   function update() { save(); refreshSlots(); renderCart(); }
-  function renderAll() { applyStatic(); renderBread(); renderTabs(); renderMenu(); renderCart(); }
+  function renderAll() { applyStatic(); renderBread(); renderTabs(); renderMenu(); renderCart(); if (map) updateMapLang(); }
 
   function bump(el) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
 
@@ -980,6 +1008,71 @@
     cart[id] = qty(id) - 1;
     if (cart[id] <= 0) delete cart[id];
     update();
+  }
+
+
+  /* ---------- Карта (Leaflet + OpenStreetMap) ---------- */
+  let map, markers = {};
+  function markerIcon(id, active) {
+    return L.divIcon({
+      className: '',
+      iconSize: [0, 0],
+      html: `<div class="pb-marker${active ? ' active' : ''}"><span class="pb-pin"><img src="images/logo.jpg" alt=""></span><span class="pb-label">${BRANCHES[id][lang]}</span></div>`
+    });
+  }
+  function popupHtml(id) {
+    const b = BRANCHES[id];
+    return `<b>${b[lang]}</b>${t(b.hours)}<br><a href="https://www.google.com/maps/dir/?api=1&destination=${b.lat},${b.lng}" target="_blank" rel="noopener">${t('routeLink')} →</a>`;
+  }
+  function fitMap(animate) {
+    if (!map) return;
+    const bounds = L.latLngBounds(Object.values(BRANCHES).map(b => [b.lat, b.lng]));
+    const card = document.querySelector('.contacts-card');
+    const desktop = window.innerWidth > 900;
+    const opts = desktop
+      ? { paddingTopLeft: [card.getBoundingClientRect().right - document.getElementById('map').getBoundingClientRect().left + 70, 90], paddingBottomRight: [80, 90], maxZoom: 14, animate }
+      : { padding: [60, 60], maxZoom: 14, animate };
+    map.fitBounds(bounds, opts);
+  }
+  function initMap() {
+    if (!window.L) return; // если карта не загрузилась, остаются ссылки на 2ГИС/Яндекс/Google
+    map = L.map('map', { scrollWheelZoom: false, zoomControl: false, dragging: !L.Browser.mobile, tap: false });
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19, subdomains: 'abcd',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+    }).addTo(map);
+    Object.keys(BRANCHES).forEach(id => {
+      const b = BRANCHES[id];
+      markers[id] = L.marker([b.lat, b.lng], { icon: markerIcon(id), keyboard: true, title: b[lang] })
+        .addTo(map).bindPopup(popupHtml(id), { offset: [0, -20] });
+      markers[id].on('click', () => highlight(id));
+    });
+    fitMap(false);
+    let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => fitMap(false), 200); });
+  }
+  function highlight(id) {
+    Object.keys(markers).forEach(k => markers[k].setIcon(markerIcon(k, k === id)));
+  }
+  function focusBranch(id) {
+    if (!map) return;
+    const b = BRANCHES[id];
+    if (window.innerWidth <= 900) document.getElementById('map').scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth', block: 'center' });
+    const desktop = window.innerWidth > 900;
+    const card = document.querySelector('.contacts-card');
+    let target = L.latLng(b.lat, b.lng);
+    if (desktop) {
+      // сдвигаем центр, чтобы точка не пряталась под карточкой
+      const shift = (card.getBoundingClientRect().right - document.getElementById('map').getBoundingClientRect().left) / 2;
+      const p = map.project(target, 16).subtract([shift, 0]);
+      target = map.unproject(p, 16);
+    }
+    map.flyTo(target, 16, { duration: reduceMotion() ? 0 : 1.1 });
+    highlight(id);
+    setTimeout(() => markers[id].openPopup(), reduceMotion() ? 0 : 1150);
+  }
+  function updateMapLang() {
+    Object.keys(markers).forEach(id => { markers[id].setIcon(markerIcon(id)); markers[id].setPopupContent(popupHtml(id)); });
   }
 
   /* ---------- Язык ---------- */
@@ -1061,6 +1154,8 @@
     const decBtn = e.target.closest('[data-dec]');
     const tabBtn = e.target.closest('[data-tab]');
     const langBtn = e.target.closest('[data-lang]');
+    const focusBtn = e.target.closest('[data-focus]');
+    if (focusBtn) { focusBranch(focusBtn.dataset.focus); return; }
     if (addBtn) add(addBtn.dataset.add, addBtn);
     else if (incBtn) add(incBtn.dataset.inc, null);
     else if (decBtn) dec(decBtn.dataset.dec);
@@ -1129,6 +1224,7 @@
 
   $('#year').textContent = new Date().getFullYear();
   renderAll();
+  initMap();
 </script>
 </body>
 </html>
